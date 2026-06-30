@@ -1,0 +1,95 @@
+import sys
+sys.path.append('../../common') # include the common folder
+
+# SET GPU TO USE
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
+import tqdm
+
+import matplotlib
+import matplotlib.pyplot as plt
+
+import seaborn as sns
+sns.set_theme(palette="pastel")
+
+import scipy.spatial.distance as distance
+
+import jax
+# DISABLED WARNING --- Enable float64 globally
+jax.config.update("jax_enable_x64", True) # WARNING !!!!!!! WARNING !!!!!!!
+
+import jax.numpy as jnp
+#from sigdiff_k_metric_jax import *
+import numpy as np
+from sandscapes_main import *
+
+SMALL_SIZE = 30 
+MEDIUM_SIZE = 38
+BIGGER_SIZE = 38
+
+plt.rc('font', size=SMALL_SIZE)          
+plt.rc('axes', titlesize=SMALL_SIZE)     
+plt.rc('axes', labelsize=MEDIUM_SIZE)    
+plt.rc('xtick', labelsize=SMALL_SIZE)    
+plt.rc('ytick', labelsize=SMALL_SIZE)    
+plt.rc('legend', fontsize=SMALL_SIZE)    
+plt.rc('figure', titlesize=BIGGER_SIZE)
+
+d_x = 2.0
+d_y = 2.6
+Is = jnp.asarray([ [-d_x/2.0, 0], [d_x/2.0, 0], [0, d_y] ])
+K = 100
+
+X_0 = jnp.zeros((K, 2)) + jnp.mean(Is, axis=0)
+tmax = 800
+lr= 0.03
+noise_level = 7
+
+seed = 42
+key = jax.random.key(seed)
+keys = jax.random.split(key, (tmax))
+
+gamma = 0
+def plot_ax(ax, X_0, d_x, d_y, beta, gamma, tmax, lr, noise_level, keys, plot_y):
+    Ms_saves = training_loop(X_0, X_0, Is, jnp.asarray([beta]), gamma, tmax, lr, noise_level, keys) 
+    tmax, K, N = Ms_saves.shape
+
+    ax[0].set_ylabel("x", labelpad=10); ax[1].set_ylabel("y", labelpad=10)
+    ax[1].set_xlabel("time", labelpad=5)
+    ax[0].set_ylim(-d_y/2.0-0.1, d_y/2.0+0.1)
+    ax[1].set_ylim(-0.1, d_y+0.1)
+
+    # Setting grid to be lighter
+    st = sns.axes_style()
+    base = st["grid.color"]
+    grid_rgba = matplotlib.colors.to_rgba(base, alpha=0.3)
+    #ax[0].grid(True, color=grid_rgba, linewidth=0.4); ax[1].grid(True, color=grid_rgba, linewidth=0.4)
+
+    ax[0].set_title(r"$\beta$="+str(beta), fontsize=35, pad=20)
+    
+    tmax = len(Ms_saves)
+    ts = np.linspace(0, 1, tmax)
+    for k in range(K):
+        ax[0].plot(ts, Ms_saves[:, k, 0], color="k", alpha=0.5, lw=0.4)
+        ax[1].plot(ts, Ms_saves[:, k, 1], color="k", alpha=0.5, lw=0.4)
+
+    if not plot_y:
+        ax[0].set_ylabel("")
+        ax[1].set_ylabel("")
+
+
+
+
+fig, axs = plt.subplots(2, 3, figsize=(16*2, 9*2), sharex=True, sharey="row")
+
+for i, beta in enumerate([1.5, 3.0, 11.0]):
+    plot_ax(axs[:, i], X_0, d_x, d_y, beta, gamma, tmax, lr, noise_level, keys, i==0)
+plt.tight_layout()
+
+import os
+os.makedirs("Fig", exist_ok=True)
+
+plt.savefig("Fig/S_traces.png", bbox_inches="tight")
+
+
