@@ -3,9 +3,9 @@ import jax
 jax.config.update("jax_enable_x64", True) # WARNING !!!!!!! WARNING !!!!!!! # Get rid of this at some point
 
 import sys
-sys.path.append('../../highdim/common') # include the common folder
+sys.path.append('../../common') # include the common folder
 
-from sigdiff_k_metric_jax_betas_opt_mute_reset import *
+from sandscapes_main import *
 import jax
 import jax.numpy as jnp
 
@@ -18,43 +18,27 @@ gamma = data['gamma']
 tmax = len(Xs_saves)
 
 
-
-def calculate_energy_over_cells_and_time(cells, Xs_saves, XIs, beta, gamma, mute_cells=None, time_batch_size=10, probe_factor=1E-5):
-    mute_cells_none = jnp.ones((Xs_saves.shape[0], Xs_saves.shape[1])) # or K+1
-    if mute_cells is None:
-        mute_cells = mute_cells_none
-    
+def calculate_energy_over_cells_and_time(cells, Xs_saves, XIs, beta, gamma, time_batch_size=10, probe_factor=1E-5):   
     # Calculate the signal at each time point
     D_2 = jax.vmap(calculate_distances, in_axes=(0, None))(Xs_saves, XIs)
-
-    gammas_eff = gamma[None, :] + jax.vmap(calculate_signals, in_axes=(None, 0, 0))(beta, D_2, mute_cells).sum(axis=1) # aggregated
+    gammas_eff = gamma[None, :] + jax.vmap(calculate_signals, in_axes=(None, 0))(beta, D_2).sum(axis=1) # aggregated
 
     calc_grads_and_Es_all_cells = jax.vmap(calculate_grads_and_Es, in_axes=(0, None, None, None, None))
-    #calc_grads_and_Es_all_cells_all_t = jax.vmap(calc_grads_and_Es_all_cells, in_axes=(0, None, None, 0, None))
 
     def calc_grads_and_Es_all_cells_prefilled(input_tuple):
         cells_slice, gammas_slice = input_tuple
-
         return calc_grads_and_Es_all_cells(cells_slice[:, None, :], XIs, beta, gammas_slice, jnp.asarray([probe_factor]))
     
-    grads, Es = jax.lax.map(calc_grads_and_Es_all_cells_prefilled, (Xs_saves, gammas_eff))#, batch_size=time_batch_size)
-    # By default mute_cells is set to 1
-    # OOM below
-    #grads, Es = calc_grads_and_Es_all_cells_all_t(cells[:, :, None, :], XIs, beta, gammas_eff, probe_factor*mute_cells_none[0])
+    grads, Es = jax.lax.map(calc_grads_and_Es_all_cells_prefilled, (Xs_saves, gammas_eff))
     return (grads, -Es)
 
 
-def calculate_energy_over_probes_and_time(probes, Xs_saves, XIs, beta, mute_cells=None, time_batch_size=10, probe_factor=1E-5):
-    mute_cells_none = jnp.ones((Xs_saves.shape[0], Xs_saves.shape[1])) # or K+1
-    if mute_cells is None:
-        mute_cells = mute_cells_none
-    
+def calculate_energy_over_probes_and_time(probes, Xs_saves, XIs, beta, time_batch_size=10, probe_factor=1E-5):
     # Calculate the signal at each time point
     D_2 = jax.vmap(calculate_distances, in_axes=(0, None))(Xs_saves, XIs)
-    gammas_eff = gamma[None, :] + jax.vmap(calculate_signals, in_axes=(None, 0, 0))(beta, D_2, mute_cells).sum(axis=1) # aggregated
+    gammas_eff = gamma[None, :] + jax.vmap(calculate_signals, in_axes=(None, 0))(beta, D_2).sum(axis=1) # aggregated
 
     calc_grads_and_Es_all_probes = jax.vmap(calculate_grads_and_Es, in_axes=(0, None, None, None, None))
-    # By default mute_cells is set to 1
     calc_grads_and_Es_all_probes_prefilled = lambda gamma_slice: calc_grads_and_Es_all_probes(probes, XIs,
                                                                                               beta, gamma_slice,
                                                                                               jnp.asarray([probe_factor]))
@@ -69,8 +53,8 @@ Ms_probes_x, Ms_probes_y = jnp.meshgrid(x, x.copy())
 Ms_probes = jnp.asarray([Ms_probes_x.ravel(), Ms_probes_y.ravel()]).T
 Ms_probes = Ms_probes[:, None, :]
 
-grads_probes, Es_probes = calculate_energy_over_probes_and_time(Ms_probes, Xs_saves, XIs, beta, mute_cells=None, time_batch_size=5)
-_, Es_cells = calculate_energy_over_cells_and_time(Xs_saves, Xs_saves, XIs, beta, gamma, mute_cells=None, time_batch_size=5)
+grads_probes, Es_probes = calculate_energy_over_probes_and_time(Ms_probes, Xs_saves, XIs, beta, time_batch_size=5)
+_, Es_cells = calculate_energy_over_cells_and_time(Xs_saves, Xs_saves, XIs, beta, gamma, time_batch_size=5)
 
 
 Es_min = jnp.min(Es_probes, axis=-1)[:, None]

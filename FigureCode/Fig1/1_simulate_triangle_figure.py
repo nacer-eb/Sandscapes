@@ -35,14 +35,11 @@ def draw_rect(ax, w, h, center=[0, 0, 0], color = [0.95, 0.95, 0.95, 1.0], zorde
     ax.add_collection3d(poly)
 
 
-
-
 fig = plt.figure(figsize=(16, 9), dpi=300)
 ax = fig.add_subplot(1, 1, 1, projection='3d', computed_zorder=False)
 
 xmin, xmax = -1.75, 1.75
 ymin, ymax = -1.75, 1.75
-
 
 k_s = 0.5
 panel_color = np.asarray(ax.xaxis.pane.get_facecolor())
@@ -68,7 +65,8 @@ for k in range(K):
     mem_traces = ax.plot(ts[:ts_i[0]], Xs_saves[:ts_i[0], k, 0], Xs_saves[:ts_i[0], k, 1],  lw=1.75, alpha=0.5,
                          color=particle_colors[-1, k], zorder=6, rasterized=True)
     for j in range(4):
-        mem_traces = ax.plot(ts[ts_i[j]:ts_i[j+1]], Xs_saves[ts_i[j]:ts_i[j+1], k, 0], Xs_saves[ts_i[j]:ts_i[j+1], k, 1],  lw=1.75, alpha=0.5,
+        mem_traces = ax.plot(ts[ts_i[j]:ts_i[j+1]], Xs_saves[ts_i[j]:ts_i[j+1], k, 0], Xs_saves[ts_i[j]:ts_i[j+1], k, 1],
+                             lw=1.75, alpha=0.5,
                              color=particle_colors[-1, k], zorder=5-j, rasterized=True)
 
 
@@ -93,17 +91,8 @@ plt.tight_layout()
 
 import os
 os.makedirs("fig", exist_ok=True)
-
-plt.savefig("fig/1_simulate_triangle_image_"+str(beta)+"_v2.svg")
-#plt.show()
+plt.savefig("fig/A_simulate_triangle_image.svg")
 plt.close()
-
-print("ax.view_init(elev=", ax.elev, ", azim=", ax.azim, ", roll=", ax.roll,")")
-print("ax.set_xlim(",ax.get_xlim(),")")
-print("ax.set_ylim(",ax.get_ylim(),")")
-print("ax.set_zlim(",ax.get_zlim(),")")
-
-
 
 
 
