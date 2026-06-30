@@ -41,7 +41,6 @@ def compute_pearson_residuals(data, gene_names, min_cells=3):
     # Estimate raw Theta via Method of Moments
     mean_g = G / data_filt.shape[0] # genetic expression of each gene, averaged over cells
     var_g = np.var(data_filt, axis=0)
-
     valid = var_g > (mean_g + 1e-6) # if the mean is greater or equal to the variance, then this gene is roughly poisson and we don't fit theta
     raw_theta = np.full(G.shape, 100.0)
     raw_theta[valid] = (mean_g[valid]**2) / (var_g[valid] - mean_g[valid]) # we fit theta assuming that our data is s.t. var(gene) = mean((gene)) + mean(gene)**2/theta
@@ -71,16 +70,16 @@ def compute_pearson_residuals(data, gene_names, min_cells=3):
 
 import scanpy as sc
 import pandas as pd
-adata = sc.read_mtx('../weinreb_v2/GSE140802_data/GSM4185642_stateFate_inVitro_normed_counts.mtx')
+adata = sc.read_mtx('./GSE140802_data/GSM4185642_stateFate_inVitro_normed_counts.mtx')
 
-gene_names = np.asarray(pd.read_csv('../weinreb_v2/GSE140802_data/GSM4185642_stateFate_inVitro_gene_names.txt', header=None).values[:, 0], dtype=str)
-
-
+gene_names = np.asarray(pd.read_csv('./GSE140802_data/GSM4185642_stateFate_inVitro_gene_names.txt', header=None).values[:, 0], dtype=str)
 
 
-cell_barcodes = pd.read_csv('../weinreb_v2/GSE140802_data/GSM4185642_stateFate_inVitro_cell_barcodes.txt', header=None).values[:, 0]
 
-metadata = pd.read_csv('../weinreb_v2/GSE140802_data/GSM4185642_stateFate_inVitro_metadata.txt', sep='\t')
+
+cell_barcodes = pd.read_csv('./GSE140802_data/GSM4185642_stateFate_inVitro_cell_barcodes.txt', header=None).values[:, 0]
+
+metadata = pd.read_csv('./GSE140802_data/GSM4185642_stateFate_inVitro_metadata.txt', sep='\t')
 metadata_barcodes = metadata['Cell barcode'].values
 time_labels = metadata['Time point'].values
 ct_labels = metadata['Cell type annotation'].values
@@ -89,7 +88,7 @@ full_labels = ct_labels + "-" + np.asarray(time_labels, dtype=str)
 
 # Clone Matrix
 # This is unique to this dataset, it's a CELL x CLONE_FAMILY matrix that says which cell is part of which clonal family (at most 1)
-clone_mtx_ = sc.read_mtx('../weinreb_v2/GSE140802_data/GSM4185642_stateFate_inVitro_clone_matrix.mtx').X.toarray()
+clone_mtx_ = sc.read_mtx('./GSE140802_data/GSM4185642_stateFate_inVitro_clone_matrix.mtx').X.toarray()
 
 # Unlabelled with the lentivirus cells are marked to the zeroth barcode and everything else is shifted up 1
 clone_mtx = np.zeros((clone_mtx_.shape[0], clone_mtx_.shape[1]+1))
@@ -170,16 +169,12 @@ print("Filtered out", np.sum(~mask_out_confounding), "Confounding genes, MT, RPS
 
 
 
-# Initial data partitioning, to construct a balanced CT partition
+# Data partitioning, to construct a balanced CT partition
 N_per_class = 200 # 20*3*len(ct_names) # 200 
-#selected_labels_full = np.arange(np.max(Ls_full)+1, dtype=int) # for now sample from everytime point
-
 selected_labels_full = np.asarray([0, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]) # take early hsc, late everything else
 selected_labels = np.arange(np.max(Ls)+1, dtype=int) # for now sample from everytime point
 indx = np.arange(len(data), dtype=int)
 
-#indx_partitionned, Ls_partitionned_full = get_data_partition(indx, Ls_full, selected_labels_full,
-#                                                             N_per_class, replace=True, verbose=False)
 indx_partitionned, Ls_partitionned_full = get_data_partition(indx, Ls_full, selected_labels_full,
                                                              N_per_class, replace=True, verbose=False, seed=SEED)
 
@@ -187,11 +182,12 @@ data_partitionned = data[indx_partitionned]
 Ls_time = time_labels[indx_partitionned]
 Ls_partitionned = Ls[indx_partitionned]
 cell_clone_label_partitionned = cell_clone_label[indx_partitionned]
-clone_stats_partitionned = clone_stats[cell_clone_label_partitionned] # WARNING NOT UNIQUE is dangerous but EASIER TO DEAL WITH
+
+# WARNING STATISTICS NOT UNIQUE is dangerous but EASIER TO DEAL WITH
+clone_stats_partitionned = clone_stats[cell_clone_label_partitionned] 
 
 # --- Normalize using Pearson Residuals ---
 data_residuals, data_partitionned, gene_names_filtered = compute_pearson_residuals(data_partitionned, gene_names)
-
 
 # Find Highly Variable Genes (HVGs) 
 D = np.sum(data_residuals**2, axis=0)
@@ -312,5 +308,3 @@ np.savez(f"data_preprocessed_{SEED}.npz",
          clone_stats=clone_stats, cell_clone_label_partitionned=cell_clone_label_partitionned,
          cmap=cmap, ct_names=ct_names, gene_names_high=genes_names_high,
          indx_partitionned=indx_partitionned, allow_pickle=True)
-# ct_names_full=ct_names_full,
-#Ls_full=Ls_partitionned_full,
