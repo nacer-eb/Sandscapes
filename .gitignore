@@ -1,6 +1,6 @@
 .*.~undo-tree~
+.py~
 *.npz
-
 *.x3d
 *.db
 *.npz
