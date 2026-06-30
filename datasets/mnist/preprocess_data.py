@@ -28,22 +28,6 @@ selected_labels = np.arange(np.max(L_train)+1, dtype=int) # for now sample from 
 data_partitionned, Ls_partitionned = get_data_partition(Xs, Ls, selected_labels,
                                                              N_per_class, replace=True, verbose=False, seed=42)
 
-# unsupervised for now
-#Ls_oh = (np.eye(10, 10)*2 - 1)[Ls_partitionned]
-#data_partitionned = np.hstack([data_partitionned, Ls_oh])
-
-"""
-fig, ax = plt.subplots(1, 1, figsize=(16, 9))
-im = ax.imshow(data_partitionned[201].reshape(28, 28), cmap="bwr")
-plt.colorbar(im)
-plt.show()
-"""
-
-# PCA & NCA (the latter for visualization only)
-#pca = PCA(n_components=100, random_state=42).fit(data_partitionned)
-#pca_components = pca.components_
-#print(np.cumsum(pca.explained_variance_ratio_))
-#embed_pca = pca.transform(data_partitionned)
 
 alpha_components = np.linalg.pinv(data_partitionned[:, :784], rcond=1E-5).reshape(784, 10, -1).sum(axis=-1)
 embed_alpha = (data_partitionned[:, :784] @ alpha_components)
@@ -72,7 +56,6 @@ ax.set_title("NCA")
 plt.show()
 
 
-
 # Plot NCA
 fig = plt.figure(figsize=(16, 9))
 ax = fig.add_subplot(projection='3d')
@@ -84,38 +67,6 @@ cb.set_ticklabels(np.arange(10))
 ax.set_title("PCA")
 plt.show()
 
-
-from metric_learn import LFDA
-npe = LFDA(n_components=2).fit(embed_alpha, Ls_partitionned)
-NPE_mtx = npe.components_
-
-embed_npe = npe.transform(embed_alpha)
-
-fig = plt.figure(figsize=(16, 9))
-ax = fig.add_subplot(projection='3d')
-im = ax.scatter(embed_npe[:, 0], embed_npe[:, 1], embed_npe[:, -1], s=24, c=Ls_partitionned, cmap="tab10",
-                vmin=0, vmax=10)
-cb = plt.colorbar(im)
-cb.set_ticks(np.arange(10)+0.5)
-cb.set_ticklabels(np.arange(10))
-ax.set_title("NPE")
-plt.show()
-
-
-
-
-"""
-fig = plt.figure(figsize=(16, 9))
-ax = fig.add_subplot()
-im = ax.scatter(embed_nca[:, 0], embed_nca[:, 1], s=4, c=Ls_partitionned, cmap="tab10",
-                vmin=0, vmax=10)
-cb = plt.colorbar(im)
-cb.set_ticks(np.arange(10)+0.5)
-cb.set_ticklabels(np.arange(10))
-ax.set_title("NCA")
-plt.show()
-
-"""
 
 # Save
 np.savez("data_mnist_tmp.npz", XI=data_partitionned, XI_pca=embed_pca, XI_alpha=embed_alpha, XI_NCA=embed_nca,
