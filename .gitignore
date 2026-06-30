@@ -26,3 +26,4 @@ share
 *.txt
 *.h5ad
 FigureCode/Fig3/data_link
+FigureCode/*/temp_frames
