@@ -12,7 +12,7 @@ import multiprocessing
 
 import tqdm
 # Plotting
-from plotting_utils import *
+from C_plotting_utils import *
 
 if __name__ == "__main__":
     ts = np.asarray([0, 30, 70, 100, 150, 260, 580, 900], dtype=int)

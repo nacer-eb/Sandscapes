@@ -9,25 +9,6 @@ import numpy as np
 import vedo
 
 def get_cam_n_axes(grid):
-   
-    cam = dict(
-        pos=(3.00221, -6.89095, 3.33090),
-        focal_point=(-0.227599, -0.0983103, 0.843197),
-        viewup=(-0.103250, 0.298403, 0.948839),
-        roll=-54.5590,
-        distance=7.92214,
-        parallel_scale=2.70268, # <--- THIS IS YOUR ORTHO ZOOM
-        clipping_range=(1.74575, 15.2865),
-    )
-
-    cam = dict(
-        pos=(3.33942, -6.62591, 2.20538),
-        focal_point=(-0.185445, -0.0439029, 0.943929),
-        viewup=(-0.143162, 0.231149, 0.962328),
-        roll=-71.2449,
-        parallel_scale=1.70268,
-        clipping_range=(1.23751, 15.2291),
-    )
 
     cam = dict(
         pos=(3.52364, -6.31033, 3.00090),
@@ -36,9 +17,7 @@ def get_cam_n_axes(grid):
         roll=-63.6449,
         parallel_scale=1.70268,
         clipping_range=(1.23751, 15.2291),
-    )
-
-    
+    )  
     
     axes = vedo.Axes(
         grid,
@@ -80,12 +59,7 @@ def generate_rgba_mpl(args):
     canvas = FigureCanvas(fig_mpl)
     ax = fig_mpl.add_axes([0, 0, 1.0, 1.0])
     ax.set_axis_off()
-    #fig_mpl.patch.set_alpha(0)
     fig_mpl.patch.set_facecolor((0.65, 0.65, 0.65))
-    #ax.set_facecolor((1,0,0,1))
-
-    #ax.streamplot(X_probes_cpu[:, :, 0], X_probes_cpu[:, :, 1], grads_cpu[:, :, 0], grads_cpu[:, :, 1],
-    #              color=(0.98, 0.98, 0.98), density=2.0)
     ax.contourf(X_probes_cpu[:, :, 0], X_probes_cpu[:, :, 1], Es_manifold, vmin=0, vmax=1.1, cmap="gray")
     canvas.draw()
     buf = np.asarray(canvas.buffer_rgba())[::-1] # origin should be bottom left not top left but mpl..
@@ -147,7 +121,6 @@ def generate_3d_frames(args):
     grid = vedo_grid_set_rgb(grid, bake_shadows_xy(manifold_colors, grid, Xs_probes_3d, radius=0.09, strength=0.35))
 
     
-
     ##
     # get surface normals at closest points
     sn = grid.point_normals
@@ -155,7 +128,6 @@ def generate_3d_frames(args):
     pts = cells.points
     pts += dz * sn[ids]                     # push along normal
     cells.points = pts
-
 
 
     grid_streamplot = vedo.Grid(s=[x, y], c="red").linewidth(0)#.lighting('plastic')
