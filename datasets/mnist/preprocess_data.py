@@ -4,7 +4,6 @@ sys.path.append('../../common')
 from utils import *
 import numpy as np
 import matplotlib.pyplot as plt
-import anndata as ad
 
 from sklearn.decomposition import PCA
 from matplotlib.colors import ListedColormap
@@ -18,9 +17,7 @@ Xs = X_train.reshape(-1, 784) * 1.0/np.max(X_train)
 
 print(np.min(Xs), np.max(Xs)) # 1.0
 
-
 Ls = L_train
-
 
 # Initial data partitioning, to construct a balanced CT partition
 N_per_class = 60  #2000 #
