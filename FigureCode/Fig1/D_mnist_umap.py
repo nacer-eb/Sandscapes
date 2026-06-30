@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import umap
 import vedo
 
-output_dir = "data"
+output_dir = "data_mnist"
 run_id = 0
 runname = f"{output_dir}/worker_{run_id}"
 
@@ -24,65 +24,21 @@ tmax_sub, K, N = alphas_sub.shape
 alphas_flat = alphas_sub.reshape(tmax_sub * K, N)
 labels_sub = Ls_m[start_t:end_t:dt].ravel()
 
-"""
-reducer = umap.UMAP(n_components=2, n_neighbors=1000, verbose=True, low_memory=False)
+reducer = umap.UMAP(n_components=2, n_neighbors=1000, verbose=True, low_memory=False) # random_state disallows multithreading
 embed = reducer.fit_transform(alphas_flat)
 
-fig = vedo.Plotter(axes=0, pos=(1366, 0), size=(1920, 1080), interactive=True, offscreen=False)
+fig = vedo.Plotter(axes=0, pos=(1366, 0), size=(1920, 1080), interactive=False, offscreen=False)
 cells = vedo.Points(embed, r=4.0).cmap("tab10", labels_sub, vmin=0, vmax=9)
 cells.add_scalarbar(title="Class", nlabels=10)
 
-cam = dict(
-    pos=(-31.3802, 53.9805, 21.6872),
-    focal_point=(23.8449, -6.96888, -3.67876),
-    viewup=(0.255271, 0.559478, -0.788556),
-    roll=-37.5918,
-    distance=86.0702,
-    clipping_range=(22.5379, 143.682),
+cam_2d = dict(
+    pos=(2.03635, 2.46198, 64.0612),
+    focal_point=(2.03635, 2.46198, 0.0),
+    viewup=(0, 1, 0),
+    parallel_projection=True,
 )
 
 fig.show(cells, camera=cam)
+import os; os.makedirs("fig/", exist_ok=True)
+fig.screenshot("fig/D_mnist_umap.png")
 fig.close()
-"""
-
-np.random.seed(40)
-final_labels = Ls_m[-1]
-selected_indices = []
-
-for digit in range(10):
-    valid_indices = np.where(final_labels == digit)[0]
-    if len(valid_indices) > 0:
-        chosen_idx = np.random.choice(valid_indices)
-        selected_indices.append(chosen_idx)
-    else:
-        selected_indices.append(0) # if the digit is not represented in the final population; just in case
-
-
-tmax_total = Ms_saves.shape[0]
-save_dt = 100
-
-tab10 = plt.get_cmap("tab10")
-dark_colors = [np.array(tab10(i)[:3]) * 0.85 for i in range(10)]
-
-for t in range(0, tmax_total, save_dt):
-    images_to_stack = []
-    for digit, idx in enumerate(selected_indices):
-        img = np.clip(Ms_saves[t, idx].reshape(28, 28), 0, 1)
-        
-        img_rgb = np.ones((28, 28, 3))
-        for c in range(3):
-            img_rgb[:, :, c] = 1.0 - img * (1.0 - dark_colors[digit][c])
-            
-        images_to_stack.append(img_rgb)
-        
-    stacked_image = np.vstack(images_to_stack)
-    
-    plt.figure(figsize=(3, 15))
-    plt.imshow(stacked_image)
-    plt.axis("off")
-
-    import os; os.makedirs("mnist_snapshots", exist_ok=True)
-    filename = f"mnist_snapshots/mnist_stacked_t{t:04d}.png"
-    plt.savefig(filename, bbox_inches='tight', pad_inches=0)
-    plt.close()
-

@@ -1,0 +1,88 @@
+import os
+os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "true"
+os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.86"
+
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+
+import sys
+sys.path.append("../../common")
+
+import tqdm
+
+import jax
+import jax.numpy as jnp
+from sandscapes_main import *
+
+import numpy as np
+import scipy.spatial.distance as distance
+import vedo
+
+import numpy as np
+
+import matplotlib.pyplot as plt
+
+import argparse
+import vedo
+
+import jax
+import jax.numpy as jnp
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run cell simulation parameter sweep.")
+
+    parser.add_argument("--run_id", type=int, required=False, default="0", help="Run id (0, 1, ..) ")
+    parser.add_argument("--beta", type=float, required=False, default="0.36", help="Beta parameter for the run (0.25) ")
+    parser.add_argument("--K", type=int, required=False, default=20*20, help="Number of cells (100)")
+    parser.add_argument("--tmax", type=int, required=False, default="3000", help="Number of timesteps (100)")
+    parser.add_argument("--noise_level", type=float, required=False, default="6.0", help="Noise level for the run (2.0)")
+    parser.add_argument("--datafile", type=str, required=False,
+                        default="../../datasets/mnist/data_mnist.npz", help="Path to datafile")
+    parser.add_argument("--output_dir", type=str, required=False, default="data_mnist/",
+                        help="Where to save the files (test_dir)")
+
+
+    args = parser.parse_args()
+    run_id = args.run_id
+    betas = jnp.asarray([args.beta])
+    noise_level = args.noise_level 
+    output_dir = args.output_dir; os.makedirs(output_dir, exist_ok=True)
+    gamma = 1E-5#5 # 1E-5 # 5
+
+    K = args.K
+    tmax = args.tmax;
+    print(f"Starting with betas {betas}, noise_level {noise_level}, and output_dir {output_dir}")
+
+    ## ---- LOADING XI --------- #
+    datafile = args.datafile
+    data = np.load(datafile, allow_pickle=True)
+   
+    XI = data['XI']
+    Ls = data['Ls']
+
+    # Calculate mean phenotypes for i.c. 
+    XI_means = jnp.asarray([ jnp.mean(XI[Ls==i], axis=0) for i in np.unique(Ls)  ]);
+    D = distance.cdist(XI_means, XI_means)
+    print(np.mean(D[D>0]), "EXPECTED BETA ORDER OF MAGNITUDE", 4.0/(np.mean(D[D>0])**2))
+
+    X_STEM = np.repeat(np.mean(XI, axis=0)[None, :], K, axis=0)
+    X_0 = jnp.zeros((K, XI.shape[-1])) + X_STEM
+
+    lr = 0.0051
+    keys = jax.random.split(jax.random.key(42), (tmax, ))
+    Ms_saves_ = training_loop(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level, keys, mute_cells_ts=None)
+    Ms_saves = np.asarray(Ms_saves_, copy=True)
+    Ms_saves_ = 0
+
+    Ls_m = np.argmax(np.exp(-args.beta*calculate_distances(Ms_saves[-1], XI[..., :784])).reshape(K, 10, -1).sum(axis=-1), axis=-1)
+    Ls_m = np.repeat(Ls_m[None, :], tmax, axis=0)   
+
+    runname = f"{output_dir}/worker_{run_id}"
+    np.savez(runname+".npz", Ms_saves=Ms_saves, Ls_m=Ls_m,
+             gamma=gamma, betas=betas, 
+             noise_level=noise_level, X_STEM=X_STEM, args_dict=vars(args))
+
