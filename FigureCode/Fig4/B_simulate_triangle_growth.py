@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../../highdim/common')
+sys.path.append('../../common')
 
 import os
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.90"
@@ -7,7 +7,9 @@ os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.90"
 import argparse
 import jax
 import jax.numpy as jnp
-from sigdiff_k_metric_jax_betas_opt_mute_reset import *
+
+from sandscapes_main import *
+
 import numpy as np
 import scipy.spatial.distance as distance
 import tqdm
