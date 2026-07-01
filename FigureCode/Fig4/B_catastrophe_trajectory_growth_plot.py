@@ -10,7 +10,8 @@ import seaborn as sns
 
 
 tmin = 0
-data_h = np.load("/localhome/nacer/SignalDiff_data/SLURM/run_save_growth_h_q4.0_seed4.npz")
+#data_h = np.load("/localhome/nacer/SignalDiff_data/SLURM/run_save_growth_h_q4.0_seed4.npz")
+data_h = np.load("run_save_growth.npz")
 Ss_saves_h = data_h['Ss_saves'][tmin:70000]#100000
 tmax = len(Ss_saves_h)
 
@@ -63,6 +64,6 @@ ax.set_ylim(ymin, ymax)
 
 plt.tight_layout()
 #plt.show()
-plt.savefig("Fig/catastrophe_growth_plot_H.png", transparent=True)
+plt.savefig("Fig/B_catastrophe_growth_plot.png", transparent=True)
 
 
