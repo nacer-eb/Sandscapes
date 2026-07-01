@@ -1,6 +1,9 @@
 import sys
 sys.path.append('../../common') # include the common folder
 
+import jax
+jax.config.update("jax_enable_x64", True) 
+
 from sandscapes_main import *
 import jax
 import jax.numpy as jnp
@@ -24,7 +27,7 @@ key = jax.random.key(41)
 keys = jax.random.split(key, (tmax,))
 
 X_STEM = jnp.asarray([ XIs[-1] + 0.1*jnp.asarray([1.0, -1.0]) ])
-X_0 = X_STEM.repeat(K, axis=0) + jax.random.normal(keys[0], shape=(K, 2)) * (1.0/10.0)**6
+X_0 = X_STEM.repeat(K, axis=0) + jax.random.normal(keys[1], shape=(K, 2)) * (1.0/10.0)**6
 
 mute_cells_ts = jnp.ones((tmax, K))
 

@@ -20,7 +20,6 @@ import jax.numpy as jnp
 import numpy as np
 
 
-
 import matplotlib.colors
 
 colors = [    (0.8352941176, 0.3686274510, 0.0000000000, 1.0),  # 4: #D55E00 Vermilion
@@ -42,10 +41,8 @@ N_fps_space = data["N_fps_space"]
 gammas = data["gammas"]
 size_gamma = data["size_gamma"]
 
-# preprocess the FPs so that only odd numbers are kept
+# preprocess the FPs to odd numbers
 N_fps_space_pp = ((N_fps_space - 1)//2)
-
-
 
 data = jnp.load("../Fig1/run_save.npz") # Why?
 Xs_saves = data['Xs_saves']
@@ -56,23 +53,17 @@ gamma = data['gamma']
 
 tmax = len(Xs_saves)
 
-mute_cells = jnp.ones((Xs_saves.shape[0], Xs_saves.shape[1]))
-
 D_2 = jax.vmap(calculate_distances, in_axes=(0, None))(Xs_saves, XIs)
-gammas_eff = gamma[None, :] + jax.vmap(calculate_signals, in_axes=(None, 0, 0))(beta, D_2, mute_cells).sum(axis=1) # aggregated
-
+gammas_eff = gamma[None, :] + jax.vmap(calculate_signals, in_axes=(None, 0))(beta, D_2).sum(axis=1) # aggregated
 z = gammas_eff/gammas_eff[:, -1][:, None]
 
 
 
 ## GENERATE CATASTROPHE PLOT
-
-
 dpi=500
 fig_mpl = plt.Figure(figsize=((size_gamma)/dpi, (size_gamma)/dpi), dpi=dpi)
 canvas = FigureCanvas(fig_mpl)
 ax = fig_mpl.add_axes([0, 0, 1.0, 1.0])
-#ax.set_axis_off()
 
 ax.tick_params(axis='both', which='both', 
                bottom=False, left=False, 
@@ -101,14 +92,11 @@ plt.close(fig_mpl)
 
 
 ## GENERATES 3d PLOT
-
-
-
 fig = plt.figure(figsize=(16, 9), dpi=200)
 ax = fig.add_subplot(projection='3d', computed_zorder=False)
 
 ax.set_proj_type('ortho')
-ax.set_zlim(0, tmax)
+ax.set_zlim(0, 1500)
 ax.set_xlim(0, np.max(gammas))
 ax.set_ylim(0, np.max(gammas))
 
@@ -158,22 +146,21 @@ ax.set_zlabel("")
 for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
     # Modifed for splitting figure in 2
     axis.pane.set_facecolor((0.925, 0.925, 0.925, 1.0))  # RGBA, alpha=0
-    axis.pane.set_edgecolor((0, 0, 0, 1.0))
-    #axis.pane.set_facecolor((1, 1, 1, 0))  # RGBA, alpha=0
-    #axis.pane.set_edgecolor((1, 1, 1, 0))
+    axis.pane.set_edgecolor((1, 1, 1, 0.0))
+ax.set_box_aspect([1, 1, 1.0])
 
 
 ax.set_box_aspect([1, 1, 1.0])
 
 plt.tight_layout()
 
-zticks = np.arange(0, 1400, 200)
+zticks = np.arange(0, 1400+200, 200)
 ax.set_zticks(zticks)
-ax.set_zticklabels([""] * len(zticks))
+ax.set_zticklabels(zticks)
 ax.tick_params(axis='z', color='none')
 
 
 #plt.show()
 print(f"ax.view_init(elev={ax.elev:.2f}, azim={ax.azim:.2f}, roll={getattr(ax, 'roll', 0):.2f})")
 print(f"ax.set(xlim={ax.get_xlim()}, ylim={ax.get_ylim()}, zlim={ax.get_zlim()})")
-plt.savefig("Fig/catastrophe_trajectory_plot_A.png", transparent=True)
+plt.savefig("Fig/D_3d_catastrophe_trajectory.png", transparent=True)

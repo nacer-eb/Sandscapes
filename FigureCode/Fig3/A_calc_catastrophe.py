@@ -1,6 +1,9 @@
 import jax
 jax.config.update("jax_enable_x64", True) # Required for precise grad/E calc
 
+# If you run out of gpu memory this below forces a switch to cpu
+jax.config.update("jax_platform_name", "cpu")
+
 import sys
 sys.path.append('../../common') # include the common folder
 

@@ -102,7 +102,7 @@ plt.tight_layout()
 import os
 os.makedirs("Fig", exist_ok=True)
 
-plt.savefig("Fig/1_simulate_triangle_image_"+str(beta)+"_v2.svg")
+plt.savefig("Fig/C_plot_3d_dynamics.svg")
 plt.close()
 
 # For debugging or adjusting the view
