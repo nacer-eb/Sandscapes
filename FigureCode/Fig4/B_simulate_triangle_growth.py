@@ -52,7 +52,7 @@ time_chunk_size = tmax // N_TIME_CHUNKS
 
 k = jnp.arange(K)[None, :]
 dt = 20
-Xs_saves = np.zeros((tmax//dt, K, 2), dtype=np.float32)
+#Xs_saves = np.zeros((tmax//dt, K, 2), dtype=np.float32)
 Ss_saves = np.zeros((tmax//dt, 3))
 
 for i in tqdm.tqdm(range(0, N_TIME_CHUNKS)):
@@ -66,11 +66,13 @@ for i in tqdm.tqdm(range(0, N_TIME_CHUNKS)):
                               keys=keys_chunk, mute_cells_ts=mute_cells_ts_chunk)
     X_0 = jnp.copy(Xs_saves_[-1])
 
-    Xs_saves[i * time_chunk_size//dt: (i+1) * time_chunk_size//dt] = np.asarray(Xs_saves_[::dt], copy=True)
+    #Xs_saves[i * time_chunk_size//dt: (i+1) * time_chunk_size//dt] = np.asarray(Xs_saves_[::dt], copy=True)
     Ss_saves[i * time_chunk_size//dt: (i+1) * time_chunk_size//dt] = np.asarray(calculate_signals_all_t(Xs_saves_[::dt], XIs,
                                                                                                         beta, gamma,
                                                                                                         mute_cells_ts_chunk[::dt]),
                                                                                 copy=True)
 
-jnp.savez(args.filename, Ss_saves=Ss_saves, Xs_saves=Xs_saves, K=K, XIs=XIs, beta=beta, gamma=gamma)
+# , Xs_saves=Xs_saves
+# Let's not save Xs_saves...
+jnp.savez(args.filename, Ss_saves=Ss_saves, K=K, XIs=XIs, beta=beta, gamma=gamma)
 
