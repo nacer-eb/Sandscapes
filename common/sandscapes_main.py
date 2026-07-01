@@ -146,3 +146,24 @@ def training_loop_linear_growth(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_l
 
     return _training_loop_linear_growth(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level,
                                         keys, growth_rate, t_offset, tbeta_range)
+
+
+
+@jax.jit
+def training_loop_nosave(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level, keys, mute_cells_ts):
+    # keys should be of shape len(betas)*tmax
+
+    @jax.jit
+    def training_iter(t, X):
+        beta = betas[t//tmax]
+        key = keys[t]
+
+        grad = calculate_gradient(X, XI, beta, gamma, mute_cells_ts[t])
+        X_new = X + ( lr*grad + jax.random.normal(key, shape=X.shape) * (1.0/10.0)**noise_level )
+
+        X_new_cond = (1-(mute_cells_ts[t][:, None]==0)) * X_new + (mute_cells_ts[t][:, None]==0) * X_STEM
+        return X_new_cond
+
+    
+    Xs_final = jax.lax.fori_loop(0, tmax, training_iter, X_0)
+    return Xs_final

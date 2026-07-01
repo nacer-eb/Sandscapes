@@ -1,17 +1,12 @@
 import jax
-#jax.config.update("jax_default_matmul_precision", "highest")
-jax.config.update("jax_enable_x64", True) # WARNING !!!!!!! WARNING !!!!!!! # Get rid of this at some point
+jax.config.update("jax_enable_x64", True)
 
 import sys
-sys.path.append('../../highdim/common') # include the common folder
+sys.path.append('../../common') # include the common folder
 
 import tqdm
 
-from sigdiff_k_metric_jax_betas_opt_mute_reset import *
-
-# SET GPU TO USE
-import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+from sandscapes_main import *
 
 import tqdm
 
@@ -21,12 +16,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set_theme(palette="pastel")
 
-
 import numpy as np
 import matplotlib.colors
 
-#r = jax.random.normal(jax.random.key(42), (100000, 100000))
-#print(r)
 
 def calculate_growth_grad(z_base, growth_point, XIs, beta):
     N_cells = 100.0
@@ -41,13 +33,13 @@ def calculate_growth_grad(z_base, growth_point, XIs, beta):
     S_0 = gamma_base# + calculate_signals(beta, D_2, jnp.asarray([1.0]))[0]
     z_0 = S_0[:-1]/(S_0[-1])
     
-    Xs = training_loop_unsave(jnp.asarray([growth_point]), jnp.asarray([growth_point]), XIs,
+    Xs = training_loop_nosave(jnp.asarray([growth_point]), jnp.asarray([growth_point]), XIs,
                               jnp.asarray([beta]), gamma_base, tmax, lr, noise_level, keys, mute_cells_ts)
     #Xs = Xs_saves[-1]
 
 
     D_2 = calculate_distances(Xs, XIs)
-    S_f = calculate_signals(beta, D_2, jnp.asarray([1.0]))[0]+gamma_base
+    S_f = calculate_signals(beta, D_2)[0]+gamma_base
     z_f = S_f[:-1]/(S_f[-1])
 
     dz = z_f - z_0
@@ -68,7 +60,7 @@ common_cmap = matplotlib.colors.ListedColormap(colors)
 common_norm = matplotlib.colors.Normalize(0, 4)
 
 
-data = np.load("data_link/catastrophe_data_growth.npz") #long_iso
+data = np.load("data_catastrophe_2/catastrophe_data_growth.npz") #long_iso
 N_fps_space = data["N_fps_space"]
 gammas = data["gammas"]
 size_gamma = data["size_gamma"]
@@ -87,9 +79,6 @@ N_fps_space_pp = np.ceil((N_fps_space - 1)/2.0)
 slinesize = 100
 
 fig, ax = plt.subplots(1, 1, figsize=(15, 6), dpi=400)
-
-#convergence_pnt = np.asarray([[1145.06033642,   105.70164595]])
-#ax.scatter(convergence_pnt[0, 0], convergence_pnt[0, 1], color="grey", s=100, zorder=12)
 
 im=ax.pcolormesh(gammas[:, 0].reshape(size_gamma, size_gamma),
               gammas[:, 1].reshape(size_gamma, size_gamma),
@@ -164,4 +153,4 @@ plt.tight_layout()
 import os
 os.makedirs("Fig", exist_ok=True)
 #plt.show()
-plt.savefig("Fig/catastrophe_plot_G_growth.png")
+plt.savefig("Fig/A_catastrophe_plot_growth.png")
