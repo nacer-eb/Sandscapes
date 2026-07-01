@@ -6,8 +6,8 @@ os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.9"
 
 import argparse
 
-import jax
-jax.config.update("jax_platform_name", "cpu")
+#import jax
+#jax.config.update("jax_platform_name", "cpu")
 
 import jax.numpy as jnp
 from sandscapes_main import *
