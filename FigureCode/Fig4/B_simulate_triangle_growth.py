@@ -22,8 +22,8 @@ args = parser.parse_args()
 
 def calculate_signals_t(X, XI, beta, gamma, mute_cells):
     D_2 = calculate_distances(X, XI)
-    S = calculate_signals(beta, D_2, mute_cells)
-    S_sum = calculate_aggregate_signals(S) + gamma
+    S = calculate_signals(beta, D_2)
+    S_sum = calculate_aggregate_signals(S, mute_cells) + gamma
     return S_sum
 
 calculate_signals_all_t = jax.vmap(calculate_signals_t, in_axes=(0, None, None, None, 0))
