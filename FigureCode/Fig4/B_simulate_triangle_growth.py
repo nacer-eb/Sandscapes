@@ -2,7 +2,7 @@ import sys
 sys.path.append('../../highdim/common')
 
 import os
-os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.95"
+os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.90"
 
 import argparse
 import jax
