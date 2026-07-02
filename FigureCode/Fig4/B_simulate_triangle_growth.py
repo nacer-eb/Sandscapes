@@ -53,7 +53,14 @@ time_chunk_size = tmax // N_TIME_CHUNKS
 k = jnp.arange(K)[None, :]
 dt = 20
 
-Xs_saves = np.zeros((tmax//40, K, 2), dtype=np.float32)
+from numpy.lib.format import open_memmap
+Xs_saves = open_memmap(
+    "Xs_saves.mmap", 
+    mode="w+", 
+    dtype=np.float32, 
+    shape=(tmax // dt, K, 2)
+)
+#Xs_saves = np.zeros((tmax//dt, K, 2), dtype=np.float32)
 Ss_saves = np.zeros((tmax//dt, 3))
 
 k_indices = np.arange(K)
@@ -70,13 +77,17 @@ for i in tqdm.tqdm(range(0, N_TIME_CHUNKS)):
     X_0 = jnp.copy(Xs_saves_[-1])
 
     #Xs_saves[i * time_chunk_size//dt: (i+1) * time_chunk_size//dt] = np.asarray(Xs_saves_[::dt], copy=True)
-    Xs_saves[i * time_chunk_size//40: (i+1) * time_chunk_size//40] = np.asarray(Xs_saves_[::40], copy=True)
+    Xs_saves[i * time_chunk_size//dt: (i+1) * time_chunk_size//dt] = np.asarray(Xs_saves_[::dt], copy=True)
     Ss_saves[i * time_chunk_size//dt: (i+1) * time_chunk_size//dt] = np.asarray(calculate_signals_all_t(Xs_saves_[::dt], XIs,
                                                                                                         beta, gamma,
                                                                                                         mute_cells_ts_chunk[::dt]),
                                                                                 copy=True)
 
+Xs_saves.flush()
+
 # , Xs_saves=Xs_saves
 # Let's not save Xs_saves...
-jnp.savez(args.filename, Xs_saves=Xs_saves, Ss_saves=Ss_saves, K=K, XIs=XIs, beta=beta, gamma=gamma)
+jnp.savez(args.filename, Ss_saves=Ss_saves, K=K, XIs=XIs, beta=beta, gamma=gamma)
+
+#from I_dynamical_trajectories_v3 import *
 
