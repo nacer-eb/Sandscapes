@@ -36,7 +36,7 @@ a = data['a']
 
 
 
-def calculate_signals_all(Xs_saves, XIs, beta, gamma, mute_cells, batch_size=1):
+def calculate_signals_all(Xs_saves, XIs, beta, gamma, mute_cells):
     mute_cells_none = jnp.ones((Xs_saves.shape[0], Xs_saves.shape[1])) # or K+1
     if mute_cells is None:
         mute_cells = mute_cells_none
@@ -50,7 +50,7 @@ def calculate_signals_all(Xs_saves, XIs, beta, gamma, mute_cells, batch_size=1):
 
 
 def calculate_energy_over_cells_and_time(cells, gammas_eff, XIs, beta, gamma,
-                                         mute_cells=None, time_batch_size=10, probe_factor=1E-5):
+                                         mute_cells=None, probe_factor=1E-5):
     
     calc_grads_and_Es_all_cells = jax.vmap(calculate_grads_and_Es, in_axes=(0, None, None, None, None))
     calc_grads_and_Es_all_cells_all_t = jax.vmap(calc_grads_and_Es_all_cells, in_axes=(0, None, None, 0, None))
@@ -80,17 +80,16 @@ Ms_probes = jnp.asarray([Ms_probes_x.ravel(), Ms_probes_y.ravel()]).T
 Ms_probes = Ms_probes[:, None, :]
 
 
+print("Calculating signals")
+gammas_eff = calculate_signals_all(Xs_saves, XIs, beta, gamma, mute_cells=mute_cells_ts)
 
-gammas_eff = calculate_signals_all(Xs_saves, XIs, beta, gamma, mute_cells=mute_cells_ts, batch_size=100)
 
-grads_probes_, Es_probes_ = calculate_energy_over_probes_and_time(Ms_probes, gammas_eff, XIs, beta, gamma,
-                                                                time_batch_size=1)
+print("Calculating probe energy")
+grads_probes, Es_probes = calculate_energy_over_probes_and_time(Ms_probes, gammas_eff, XIs, beta, gamma)
 
-grads_probes, Es_probes = np.asarray(grads_probes_, copy=True), np.asarray(Es_probes_, copy=True)
-
-_, Es_cells_ = calculate_energy_over_cells_and_time(Xs_saves, gammas_eff, XIs, beta, gamma,
-                                                   mute_cells=mute_cells_ts, time_batch_size=1)
-Es_cells = np.asarray(Es_cells_, copy=True)
+print("Calculating cell energy")
+_, Es_cells = calculate_energy_over_cells_and_time(Xs_saves, gammas_eff, XIs, beta, gamma,
+                                                   mute_cells=mute_cells_ts)
 
 Es_min = np.min(Es_probes, axis=-1)[:, None]
 Es_max = np.max(Es_probes, axis=-1)[:, None] 
