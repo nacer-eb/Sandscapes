@@ -1,6 +1,5 @@
 import os
 
-os.environ["XLA_FLAGS"] = "--xla_cpu_enable_fast_math=false --xla_cpu_enable_x86_fma=false"
 os.environ["JAX_PLATFORMS"] = "cpu"
 
 import jax
