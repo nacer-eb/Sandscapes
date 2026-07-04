@@ -3,7 +3,7 @@ import os
 import jax
 import jax.numpy as jnp
 
-jax.config.update("jax_enable_x64", True)
+#jax.config.update("jax_enable_x64", True)
 
 key = jax.random.PRNGKey(41)
 key, subkey = jax.random.split(key)
