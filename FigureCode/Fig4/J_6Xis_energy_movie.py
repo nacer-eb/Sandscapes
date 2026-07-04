@@ -21,12 +21,12 @@ if __name__ == "__main__":
     parser.add_argument('--filename', type=str, default="run_save_growth_5XIs")
     args = parser.parse_args()
 
-    dt = 2 # 20
+    dt = 1 # 20
     # Loading cell position
     filename = args.filename # "run_save_growth_j_K200K"
     data = np.load(f"{filename}.npz")
-    Xs_saves = np.asarray(data['Xs_saves'])[::dt, :]
-    mute_cells_ts = np.asarray(data['mute_cells_ts'], dtype=bool)[::dt, :]
+    Xs_saves = np.asarray(data['Xs_saves'])[::2, :][::dt]
+    mute_cells_ts = np.asarray(data['mute_cells_ts'], dtype=bool)[::2, :][::dt]
     XIs = data['XIs']
     K = Xs_saves.shape[1]; beta = np.asarray(data['beta']); gamma = np.asarray(data['gamma'])
     tmax = len(Xs_saves)-1
@@ -37,9 +37,9 @@ if __name__ == "__main__":
     Xs_probes_x, Xs_probes_y = np.meshgrid(x, y)
     Xs_probes = np.asarray([Xs_probes_x.ravel(), Xs_probes_y.ravel()]).T
 
-    Es_manifold = data['Es_f_norm_manifold'];
-    manifold_grads = data['manifold_grads']
-    Es_cells = data['Es_f_norm_cells']
+    Es_manifold = data['Es_f_norm_manifold'][::dt]
+    manifold_grads = data['manifold_grads'][::dt]
+    Es_cells = data['Es_f_norm_cells'][::dt]
 
 
     # Precompute signaling bakcground color
