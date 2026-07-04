@@ -5,7 +5,7 @@ sys.path.append("../../common")
 
 import tqdm
 
-import jax
+import jax 
 import jax.numpy as jnp
 from sandscapes_main import *
 from utils import *
@@ -35,7 +35,6 @@ if __name__ == "__main__":
     parser.add_argument("--noise_level", type=float, required=False, default="2.0", help="Noise level for the run (2.0)")
     parser.add_argument("--datafile", type=str, required=False,
                         default="../../datasets/weinreb/data_preprocessed_all_t_markers.npz", help="Path to datafile")
-    parser.add_argument("--excluded_ct_mode", type=int, required=False, default="1", help="0 None, 1 Weinreb prog, 2 neurips prog")
     parser.add_argument("--output_dir", type=str, required=False, default="data_weinreb/", help="Where to save the files (test_dir)")   
     args = parser.parse_args()
 
@@ -65,15 +64,8 @@ if __name__ == "__main__":
     ct_names = data['ct_names']
     cmap = data['cmap'].item()
     NCA_mtx = data['NCA_mtx'].T
-
-    # Calculate mean phenotypes for i.c. 
-    XI_means = jnp.asarray([ jnp.mean(XI[Ls==i], axis=0) for i in np.unique(Ls)  ]);
-    D = distance.cdist(XI_means, XI_means)
-    D = D[D>0]
-    print(np.mean(D), "EXPECTED BETA ORDER OF MAGNITUDE", 4.0/(np.mean(D)**2))
     
-    EXCLUDED_CT = np.asarray([[-1], [0], [0, 1, 2, 3, 4, 6, 8]][EXCLUDED_CT_MODE])
-    stem_mask = ~np.isin(Ls, EXCLUDED_CT)
+    stem_mask = ~np.isin(Ls, [0])
 
     seed = 42
     key_0 = jax.random.PRNGKey(seed)
