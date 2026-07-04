@@ -74,35 +74,3 @@ import os
 os.makedirs("Fig", exist_ok=True)
 fig.screenshot("Fig/A_FULL_TREE.png")
 fig.close()
-#
-
-
-
-
-fig = vedo.Plotter(axes=0,  size=(3840, 2160), interactive=False, offscreen=True)
-XIs_pnts = vedo.Points(XI_NCA[Ls>0], r=10, alpha=0.5, c="k")
-
-b = XIs_pnts.bounds()
-cx = (b[0] + b[1]) / 2.0
-cy = (b[2] + b[3]) / 2.0
-sx = b[1] - b[0]
-sy = b[3] - b[2]
-z_min = b[4]
-
-floor = vedo.Plane(pos=(cx, cy, z_min - 0.5), s=(sx*1.0 , sy*1.0 ), c="lightgray", alpha=0.2)
-shadow = XIs_pnts.add_shadow(plane='z', point=z_min, alpha=0.5)
-
-cam = dict(
-    pos=(-26.8855, -375.541, 170.116),
-    focal_point=(-7.96292, -20.9642, -5.82531),
-    viewup=(0.0110217, 0.443989, 0.895964),
-    roll=6.12901,
-    distance=396.280,
-    clipping_range=(157.327, 712.565),
-)
-
-fig.show(XIs_pnts, floor, shadow, axes=0, camera=cam)
-
-os.makedirs("Fig", exist_ok=True)
-fig.screenshot("Fig/A_FULL_TREE_train.png")
-fig.close()
