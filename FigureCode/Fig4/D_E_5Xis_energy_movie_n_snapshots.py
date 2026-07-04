@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
     print("Generating snapshots")
     #"""
-    dirname = "saved_frames"
+    dirname = "D_E_snapshots"
     tasks = [
         (t, Xs_saves[t], Es_cells[t], mute_cells_ts[t], Es_manifold[t], manifold_colors, rgba_mpls[t], rgba_mpls_contour[t], x, y, size, dirname, True)
         for t in [298, 315, 348, 367, 1975, 2009, 2040, 2853] #2593
