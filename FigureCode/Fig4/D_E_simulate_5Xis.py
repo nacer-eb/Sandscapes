@@ -17,11 +17,10 @@ import tqdm
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--seed', type=int, default=41)
-parser.add_argument('--K', type=int, default=100000)
+parser.add_argument('--K', type=int, default=200000)
 parser.add_argument('--noise', type=float, default=2.75)
 parser.add_argument('--filename', type=str, default="run_save_growth_5XIs")
 args = parser.parse_args()
-print(f"NOISE {args.noise}")
 
 XIs = jnp.asarray([ [-1.75, -1.0],
                     [1.0, -1.5],

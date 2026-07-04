@@ -12,12 +12,12 @@ import multiprocessing
 
 import tqdm
 # Plotting
-from plotting_utils_v2 import *
+from D_E_plotting_utils import *
 
 if __name__ == "__main__":   
     dt = 10 # 20
     # Loading cell position
-    filename="run_save_growth_j_K100K"
+    filename="run_save_growth_5XIs"
     data = np.load(f"{filename}.npz")
     Xs_saves = np.asarray(data['Xs_saves'])[::dt, :]
     mute_cells_ts = np.asarray(data['mute_cells_ts'], dtype=bool)[::dt, :]

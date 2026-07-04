@@ -12,13 +12,13 @@ import multiprocessing
 
 import tqdm
 # Plotting
-from plotting_utils_v2 import *
+from D_E_plotting_utils import *
 
 import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--filename', type=str, default="run_save_growth_j_K100K")
+    parser.add_argument('--filename', type=str, default="run_save_growth_5XIs")
     args = parser.parse_args()
 
     dt = 2 # 20
@@ -37,9 +37,9 @@ if __name__ == "__main__":
     Xs_probes_x, Xs_probes_y = np.meshgrid(x, y)
     Xs_probes = np.asarray([Xs_probes_x.ravel(), Xs_probes_y.ravel()]).T
 
-    Es_manifold = data['Es_f_norm_manifold'][::dt];
-    manifold_grads = data['manifold_grads'][::dt]
-    Es_cells = data['Es_f_norm_cells'][::dt]
+    Es_manifold = data['Es_f_norm_manifold'];
+    manifold_grads = data['manifold_grads']
+    Es_cells = data['Es_f_norm_cells']
 
 
     # Precompute signaling bakcground color
@@ -84,6 +84,7 @@ if __name__ == "__main__":
     rgba_mpls = np.asarray(rgba_mpls)
 
 
+    print("Generating snapshots")
     #"""
     dirname = "saved_frames"
     tasks = [
@@ -100,10 +101,12 @@ if __name__ == "__main__":
     with ProcessPoolExecutor(max_workers=n_processes, mp_context=contxt) as executor:
         list(tqdm.tqdm(executor.map(generate_3d_frames, tasks), total=len(tasks)))
     #"""
-    """
+
+
+    print("Generating movie")
     dirname = "temp_frames"
     tasks = [
-        (t, Xs_saves[t], Es_cells[t], mute_cells_ts[t], Es_manifold[t], manifold_colors, rgba_mpls[t], x, y, size, dirname, False)
+        (t, Xs_saves[t], Es_cells[t], mute_cells_ts[t], Es_manifold[t], manifold_colors, rgba_mpls[t], rgba_mpls_contour[t], x, y, size, dirname, False)
         for t in range(tmax)
     ]
     
@@ -116,7 +119,6 @@ if __name__ == "__main__":
     with ProcessPoolExecutor(max_workers=n_processes, mp_context=contxt) as executor:
         list(tqdm.tqdm(executor.map(generate_3d_frames, tasks), total=len(tasks)))
 
-    
 
     cmd = [
         "ffmpeg", "-y", "-loglevel", "error",
@@ -131,5 +133,4 @@ if __name__ == "__main__":
     print("Saved to", filename)
     if os.path.exists(dirname):
         shutil.rmtree(dirname)
-    """
 

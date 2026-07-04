@@ -1,13 +1,11 @@
 import jax
 jax.config.update("jax_enable_x64", True)
+jax.config.update("jax_platform_name", "cpu")
 
 import sys
 sys.path.append('../../common') # include the common folder
 
 import tqdm
-
-import jax
-jax.config.update("jax_platform_name", "cpu")
 
 from sandscapes_main import *
 
