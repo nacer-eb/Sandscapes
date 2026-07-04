@@ -36,7 +36,7 @@ S_end_norm = (S_end)/np.sum(S_end, axis=-1)[:, None]
 Ls_end = np.argmax(S_end_norm, axis=-1)
 
 
-fig = vedo.Plotter(axes=0, pos=(1366, 0), size=(3840, 2160), interactive=True, offscreen=False)
+fig = vedo.Plotter(axes=0,  size=(3840, 2160), interactive=False, offscreen=True)
 selected_ct = np.arange(len(ct_names))
 cells_ct = [0 for i in selected_ct]
 pastel_colors = np.array([
@@ -73,4 +73,5 @@ fig.show(*cells_ct, axes=0, camera=cam) # cam ? # legend,
 import os
 os.makedirs("Fig", exist_ok=True)
 fig.screenshot("Fig/A_FULL_TREE.png")
+fig.close()
 #
