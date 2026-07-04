@@ -73,5 +73,4 @@ fig.show(*cells_ct, axes=0, camera=cam) # cam ? # legend,
 import os
 os.makedirs("Fig", exist_ok=True)
 fig.screenshot("Fig/A_FULL_TREE.png")
-fig.close()
 #
