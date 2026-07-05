@@ -1,7 +1,8 @@
 import numpy as np
 
 def load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_markers.npz",
-                                  runname="data_weinreb/worker_0_detail.npz"):
+                       runname="data_weinreb/worker_0_detail.npz",
+                       runname_nca="data_weinreb/worker_0.npz"):
     
     # Load NCA_mtx, pca, pca_inv and gene_names from the dataset
     data = np.load(datafile, allow_pickle=True)
@@ -16,12 +17,10 @@ def load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_
 
     # Load saved units
     data_run = np.load(runname)
-    for k in data_run.keys():
-        print(k)
     Ms_saves_cpu_detail = data_run["Ms_saves_cpu_detail"]
     Ms_saves_m1k = Ms_saves_cpu_detail[-5][50*2000:-1]
     Ms_saves_m1k_nca = Ms_saves_m1k @ NCA_mtx
-    Ms_saves_cpu_nca = data_run['Ms_saves_cpu_nca']
+    Ms_saves_cpu_nca = np.load(runname_nca)['Ms_saves_cpu_nca']
 
 
     # Restructure markers
