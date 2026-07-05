@@ -28,11 +28,11 @@ for pop_name, pop_mask in pop_masks.items():
     pop_markers_2 = expr_LK_markers[:, [cd34_idx, fcgr3_idx]][pop_mask]
     
     if pop_name == "CLP":
-        axs[0].scatter(*pop_markers.T, s=10, c=params["color"])
-        axs[1].scatter(*pop_markers_2.T, s=10, c=params["color"])
+        axs[0].scatter(*pop_markers.T, s=10, c=prog_gates[pop_name]["color"])
+        axs[1].scatter(*pop_markers_2.T, s=10, c=prog_gates[pop_name]["color"])
     else:
-        axs[0].scatter(*pop_markers.T, s=1, c=params["color"])
-        axs[1].scatter(*pop_markers_2.T, s=1, c=params["color"])
+        axs[0].scatter(*pop_markers.T, s=1, c=prog_gates[pop_name]["color"])
+        axs[1].scatter(*pop_markers_2.T, s=1, c=prog_gates[pop_name]["color"])
 
 
 assigned_mask = np.zeros(len(expr_LK_markers), dtype=bool)
