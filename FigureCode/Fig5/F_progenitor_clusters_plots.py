@@ -147,6 +147,9 @@ fig.screenshot("Fig/F_LIN_KIT_CLUSTERS.png")
 fig.close()
 
 
+#####
+
+
 
 
 ## VOLCANO TIME
@@ -256,3 +259,53 @@ for pop_A, pop_B in comparisons:
     plt.savefig(f"Fig/GH_Volcano_pop_{pop_A}_{pop_B}.png")
     plt.close()
 """
+
+
+slamf1_idx = ordered_genes.index("Slamf1")
+fcgr3_idx = ordered_genes.index("Fcgr3")
+cd34_idx = ordered_genes.index("Cd34")
+
+expr_LK_markers = data_matrix_markers[lin_mask][kit_mask]
+X_LK_nca = Ms_saves_m1k_nca[lin_mask, :3][kit_mask]
+
+
+fig_mpl, axs = plt.subplots(2, 1, figsize=(16, 28), dpi=200)
+pop_masks = {}
+for pop_name, params in prog_gates.items():
+    mask_slamf1 = (expr_LK_markers[:, slamf1_idx] >= params["Slamf1"][0]) & (expr_LK_markers[:, slamf1_idx] <= params["Slamf1"][1])
+    mask_fcgr3 = (expr_LK_markers[:, fcgr3_idx] >= params["Fcgr3"][0]) & (expr_LK_markers[:, fcgr3_idx] <= params["Fcgr3"][1])
+    pop_mask = mask_slamf1 & mask_fcgr3
+    pop_masks[pop_name] = pop_mask
+    
+    pop_markers = expr_LK_markers[:, [slamf1_idx, fcgr3_idx]][pop_mask]
+    pop_markers_2 = expr_LK_markers[:, [cd34_idx, fcgr3_idx]][pop_mask]
+    
+    if pop_name == "CLP":
+        axs[0].scatter(*pop_markers.T, s=10, c=params["color"])
+        axs[1].scatter(*pop_markers_2.T, s=10, c=params["color"])
+    else:
+        axs[0].scatter(*pop_markers.T, s=1, c=params["color"])
+        axs[1].scatter(*pop_markers_2.T, s=1, c=params["color"])
+
+
+assigned_mask = np.zeros(len(expr_LK_markers), dtype=bool)
+for mask in pop_masks.values():
+    assigned_mask = assigned_mask | mask
+pop_markers = expr_LK_markers[:, [slamf1_idx, fcgr3_idx]][~assigned_mask]
+pop_markers_2 = expr_LK_markers[:, [cd34_idx, fcgr3_idx]][~assigned_mask]
+
+axs[0].scatter(*pop_markers.T, s=1, c="k", alpha=0.3)
+axs[1].scatter(*pop_markers_2.T, s=1, c="k", alpha=0.3)
+axs[0].set_xlabel("Slamf1 (CD150)")
+axs[0].set_ylabel("Fcgr3 (CD16)")
+axs[0].set_xlim(-0.08, 0.02)
+axs[0].set_ylim(-0.5, 0.1)
+
+axs[1].set_xlabel("Cd34 (CD34)")
+axs[1].set_ylabel("Fcgr3 (CD16)")
+axs[1].set_xlim(0.05, 0.25)
+axs[1].set_ylim(-0.5, 0.1)
+
+plt.savefig("Fig/S_Slamf1Fcgr3_Expression.png")
+
+
