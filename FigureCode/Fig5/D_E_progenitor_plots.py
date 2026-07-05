@@ -147,5 +147,4 @@ cam = dict(
 fig.show(*cells_ct, axes=0, camera=cam)
 fig.screenshot("Fig/E_LIN_TREE.png")
 fig.close()
-
 #
