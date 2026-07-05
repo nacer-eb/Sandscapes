@@ -256,7 +256,7 @@ for pop_A, pop_B in comparisons:
         ax.set_xlabel("")
         ax.set_xticks([])
 
-    ax.set_yticks(np.arange(40, np.max(np.abs(n_p_value))*1.1, 25))
+    ax.set_yticks(np.arange(10, np.max(np.abs(n_p_value))*1.1, 25))
     ax.yaxis.tick_right()
     ax.yaxis.set_label_position("right")
     ax.set_ylabel("-log10(p-value)")
