@@ -46,12 +46,12 @@ legend = vedo.LegendBox(cells_ct, pos='bottom-left', width=0.15, height=0.4)
 txt = vedo.Text2D("t="+str(t))
 
 cam = dict(
-    pos=(-87.4642, 7.51542, -47.4414),
-    focal_point=(3.70354, -0.350938, 13.7055),
-    viewup=(0.0254612, 0.995605, 0.0901198),
-    roll=3.47780,
-    distance=110.056,
-    clipping_range=(0.237621, 237.621),
+    pos=(89.9062, 21.2696, -50.2680),
+    focal_point=(8.34769, -3.25451, -16.7184),
+    viewup=(-0.367635, -0.0479114, -0.928735),
+    roll=92.8505,
+    distance=91.5358,
+    clipping_range=(0.304213, 304.213),
 )
 
 fig.show(*cells_ct, legend, txt, axes=0, camera=cam) # cam ?
