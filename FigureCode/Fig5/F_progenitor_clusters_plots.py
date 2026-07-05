@@ -72,8 +72,8 @@ kit_mask = X>kit_bound
 
 
 ###
-LOW_SLAMF1 = [-0.0719, -0.036]
-HIGH_SLAMF1 = [-0.030, -0.0]
+LOW_SLAMF1 = [-0.0719, -0.04]
+HIGH_SLAMF1 = [-0.027, -0.0]
 
 NO_FCGR3 = [-0.4276, -0.3734]
 LOW_FCGR3 = [-0.33, -0.30]
@@ -323,7 +323,7 @@ plt.savefig("Fig/S_Slamf1Fcgr3_Expression.png")
 
 clusters = ["MEP", "GMP", "CMP", "CLP"]
 colors = [prog_gates[c]["color"] for c in clusters]
-max_n = 200
+max_n = 100
 
 figure_layouts = {
     "CMPCLP_genes": [
