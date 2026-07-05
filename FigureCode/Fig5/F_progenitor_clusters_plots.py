@@ -82,7 +82,7 @@ HIGH_FCGR3 = [-0.2085, -0.169]
 prog_gates = {
     "MEP": {
         "Slamf1": HIGH_SLAMF1,
-        "Fcgr3": [-0.35, -0.34], # 2901
+        "Fcgr3": [-0.36, -0.34], # 2901
         "color": "#D49A89"
     },
     
