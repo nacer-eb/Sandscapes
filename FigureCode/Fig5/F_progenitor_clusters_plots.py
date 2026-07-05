@@ -97,29 +97,6 @@ prog_gates = {
    
 }
 
-prog_gates = {
-    "MEP": {
-        "Slamf1": [-0.0337, -0.0014],
-        "Fcgr3": [-0.4270, -0.2901],
-        "color": "#D49A89"
-    },
-    "GMP": {
-        "Slamf1": [-0.0719, -0.0434],
-        "Fcgr3": [-0.2085, -0.1169],
-        "color": "#A9D1B3"
-    },
-    "CMP": {
-        "Slamf1": [-0.0719, -0.0434],
-        "Fcgr3": [-0.3204, -0.2673],
-        "color": "#EBD88A"
-    },
-    "CLP": {
-        "Slamf1": [-0.0718, -0.0434],
-        "Fcgr3": [-0.4276, -0.3734],
-        "color": "#A3C2E0"
-    },
-   
-}
 
 slamf1_idx = ordered_genes.index("Slamf1")
 fcgr3_idx = ordered_genes.index("Fcgr3")
