@@ -33,7 +33,7 @@ pastel_colors = np.array([
 
 import vedo
 vid = vedo.Video("A_full_tree_movie.mp4", fps=30)
-fig = vedo.Plotter(axes=0,  size=(3840, 2160), interactive=False, offscreen=True)
+fig = vedo.Plotter(axes=0,  size=(3840, 2160), interactive=False, offscreen=False)
 
 t = 0
 selected_ct = np.arange(len(ct_names))
