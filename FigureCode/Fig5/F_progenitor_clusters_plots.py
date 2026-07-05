@@ -115,6 +115,12 @@ fcgr3_idx = ordered_genes.index("Fcgr3")
 expr_LK_markers = data_matrix_markers[lin_mask][kit_mask]
 X_LK_nca = Ms_saves_m1k_nca[lin_mask, :3][kit_mask]
 
+pop_masks = {}
+for pop_name, params in prog_gates.items():
+    mask_slamf1 = (expr_LK_markers[:, slamf1_idx] >= params["Slamf1"][0]) & (expr_LK_markers[:, slamf1_idx] <= params["Slamf1"][1])
+    mask_fcgr3 = (expr_LK_markers[:, fcgr3_idx] >= params["Fcgr3"][0]) & (expr_LK_markers[:, fcgr3_idx] <= params["Fcgr3"][1])
+    pop_mask = mask_slamf1 & mask_fcgr3
+    pop_masks[pop_name] = pop_mask
 
 
 fig = vedo.Plotter(axes=0,  size=(3840, 2160), interactive=False, offscreen=True)
