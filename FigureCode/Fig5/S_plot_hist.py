@@ -137,7 +137,7 @@ for pop_name, params in prog_gates.items():
     pop_mask = mask_slamf1 & mask_fcgr3
     pop_masks[pop_name] = pop_mask
 
-
+expr_LK_full = (Ms_saves_m1k @ pca_inv.T)[lin_mask][kit_mask]
 for plot_name, layout in figure_layouts.items():
     fig, axes = plt.subplots(3, 2, figsize=(16, 18))
     
