@@ -228,7 +228,7 @@ for pop_A, pop_B in comparisons:
     ax.scatter(mean_diff[mask_high_selected_genes], n_p_value[mask_high_selected_genes], color=color_A, s=150)
     ax.scatter(mean_diff[mask_low_selected_genes], n_p_value[mask_low_selected_genes], color=color_B, s=150)
     ax.set_xlim(-np.max(np.abs(mean_diff))*1.1, np.max(np.abs(mean_diff))*1.1)
-    ax.set_ylim(40, np.max(np.abs(n_p_value))*1.1)
+    ax.set_ylim(10, np.max(np.abs(n_p_value))*1.1)
     
     texts = []
     for i in np.argwhere(mask_selected_genes).ravel():
