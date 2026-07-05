@@ -72,8 +72,8 @@ kit_mask = X>kit_bound
 
 
 ###
-LOW_SLAMF1 = [-0.0719, -0.04]
-HIGH_SLAMF1 = [-0.027, -0.0]
+LOW_SLAMF1 = [-0.0719, -0.039]
+HIGH_SLAMF1 = [-0.025, -0.00]
 
 NO_FCGR3 = [-0.4276, -0.3734]
 LOW_FCGR3 = [-0.32, -0.29]
@@ -81,8 +81,8 @@ HIGH_FCGR3 = [-0.2085, -0.169]
 
 prog_gates = {
     "MEP": {
-        "Slamf1": [-0.020, -0.00],
-        "Fcgr3": [-0.35, -0.32], # 2901
+        "Slamf1": HIGH_SLAMF1,
+        "Fcgr3": [-0.35, -0.32], # in between -/low
         "color": "#D49A89"
     },
     
@@ -110,54 +110,6 @@ fcgr3_idx = ordered_genes.index("Fcgr3")
 
 expr_LK_markers = data_matrix_markers[lin_mask][kit_mask]
 X_LK_nca = Ms_saves_m1k_nca[lin_mask, :3][kit_mask]
-
-
-
-
-
-fig = vedo.Plotter(axes=0,  size=(3840, 2160), interactive=False, offscreen=True)
-cells_ct = [0, 0]
-cells_ct[0] = vedo.Points(Ms_saves_m1k_nca[lin_mask, :3][~kit_mask], r=7, alpha=1.0, c=[0.9, 0.9, 0.9])
-cells_ct[1] = vedo.Points(Ms_saves_m1k_nca[~lin_mask, :3], r=7, alpha=1.0, c=[0.9, 0.9, 0.9])
-
-gated_population_points = []
-pop_masks = {}
-for pop_name, params in prog_gates.items():
-    mask_slamf1 = (expr_LK_markers[:, slamf1_idx] >= params["Slamf1"][0]) & (expr_LK_markers[:, slamf1_idx] <= params["Slamf1"][1])
-    mask_fcgr3 = (expr_LK_markers[:, fcgr3_idx] >= params["Fcgr3"][0]) & (expr_LK_markers[:, fcgr3_idx] <= params["Fcgr3"][1])
-    pop_mask = mask_slamf1 & mask_fcgr3
-    pop_masks[pop_name] = pop_mask
-    
-    pop_coords = X_LK_nca[pop_mask]
-    print(f"{len(pop_coords)} cells in {pop_name}") 
-    if len(pop_coords) > 0:
-        pts = vedo.Points(pop_coords, r=8, c=params["color"])
-        gated_population_points.append(pts)
-
-assigned_mask = np.zeros(len(expr_LK_markers), dtype=bool)
-for mask in pop_masks.values():
-    assigned_mask = assigned_mask | mask
-cells_unassigned = vedo.Points(X_LK_nca[~assigned_mask], r=7, c="k")
-
-#old view
-cam = dict(
-    pos=(-26.1649, -1.14319, 7.58693),
-    focal_point=(12.2776, 7.61583, -13.6800),
-    viewup=(0.203296, -0.978473, -0.0355131),
-    roll=176.139,
-    distance=44.7976,
-    clipping_range=(0.156085, 156.085),
-)
-
-
-fig.show(*cells_ct, cells_unassigned, *gated_population_points, axes=0, camera=cam)
-fig.screenshot("Fig/F_LIN_KIT_CLUSTERS.png")
-fig.close()
-
-
-#####
-
-
 
 
 ## VOLCANO TIME
@@ -265,108 +217,5 @@ for pop_A, pop_B in comparisons:
     #plt.tight_layout()
     fig.subplots_adjust(right=0.85)
     plt.savefig(f"Fig/GH_Volcano_pop_{pop_A}_{pop_B}.png")
-    plt.close()
-#"""
-
-
-slamf1_idx = ordered_genes.index("Slamf1")
-fcgr3_idx = ordered_genes.index("Fcgr3")
-cd34_idx = ordered_genes.index("Cd34")
-
-expr_LK_markers = data_matrix_markers[lin_mask][kit_mask]
-X_LK_nca = Ms_saves_m1k_nca[lin_mask, :3][kit_mask]
-
-
-fig_mpl, axs = plt.subplots(2, 1, figsize=(16, 28), dpi=200)
-pop_masks = {}
-for pop_name, params in prog_gates.items():
-    mask_slamf1 = (expr_LK_markers[:, slamf1_idx] >= params["Slamf1"][0]) & (expr_LK_markers[:, slamf1_idx] <= params["Slamf1"][1])
-    mask_fcgr3 = (expr_LK_markers[:, fcgr3_idx] >= params["Fcgr3"][0]) & (expr_LK_markers[:, fcgr3_idx] <= params["Fcgr3"][1])
-    pop_mask = mask_slamf1 & mask_fcgr3
-    pop_masks[pop_name] = pop_mask
-    
-    pop_markers = expr_LK_markers[:, [slamf1_idx, fcgr3_idx]][pop_mask]
-    pop_markers_2 = expr_LK_markers[:, [cd34_idx, fcgr3_idx]][pop_mask]
-    
-    if pop_name == "CLP":
-        axs[0].scatter(*pop_markers.T, s=10, c=params["color"])
-        axs[1].scatter(*pop_markers_2.T, s=10, c=params["color"])
-    else:
-        axs[0].scatter(*pop_markers.T, s=1, c=params["color"])
-        axs[1].scatter(*pop_markers_2.T, s=1, c=params["color"])
-
-
-assigned_mask = np.zeros(len(expr_LK_markers), dtype=bool)
-for mask in pop_masks.values():
-    assigned_mask = assigned_mask | mask
-pop_markers = expr_LK_markers[:, [slamf1_idx, fcgr3_idx]][~assigned_mask]
-pop_markers_2 = expr_LK_markers[:, [cd34_idx, fcgr3_idx]][~assigned_mask]
-
-axs[0].scatter(*pop_markers.T, s=1, c="k", alpha=0.3)
-axs[1].scatter(*pop_markers_2.T, s=1, c="k", alpha=0.3)
-axs[0].set_xlabel("Slamf1 (CD150)")
-axs[0].set_ylabel("Fcgr3 (CD16)")
-axs[0].set_xlim(-0.08, 0.02)
-axs[0].set_ylim(-0.5, 0.1)
-
-axs[1].set_xlabel("Cd34 (CD34)")
-axs[1].set_ylabel("Fcgr3 (CD16)")
-axs[1].set_xlim(0.05, 0.25)
-axs[1].set_ylim(-0.5, 0.1)
-
-plt.savefig("Fig/S_Slamf1Fcgr3_Expression.png")
-
-
-
-##########
-
-
-clusters = ["MEP", "GMP", "CMP", "CLP"]
-colors = [prog_gates[c]["color"] for c in clusters]
-max_n = 100
-
-figure_layouts = {
-    "CMPCLP_genes": [
-        ["Ly6a", "Elane"],
-        ["Ighm", "Pf4"],
-        ["H2afy", "Hbb-bt"]
-    ],
-    "MEPGMP_genes": [
-        ["Spp1", "Car2"],
-        ["Mpo", "Ppbp"],
-        ["Gzmb", "Bex4"]
-    ]
-}
-
-for plot_name, layout in figure_layouts.items():
-    fig, axes = plt.subplots(3, 2, figsize=(16, 18))
-    
-    for row in range(3):
-        for col in range(2):
-            gene = layout[row][col]
-            gene_idx = list(gene_names_high).index(gene)
-            
-            gene_data = []
-            weights = []
-            
-            for c in clusters:
-                expr_pop = expr_LK_full[pop_masks[c]][:, gene_idx]
-                if len(expr_pop) > max_n:
-                    idx = np.random.choice(len(expr_pop), max_n, replace=False)
-                    expr_pop = expr_pop[idx]
-                gene_data.append(expr_pop)
-                weights.append(np.ones_like(expr_pop) / len(expr_pop))
-            
-            axes[row, col].hist(gene_data, bins=30, color=colors, label=clusters, histtype='bar', stacked=True, weights=weights)
-            
-            axes[row, col].set_xlabel(f"{gene} Expression")
-            axes[row, col].set_ylabel("Proportion")
-            axes[row, col].set_title(f"Normalized {gene} Expression")
-            
-            if row == 0 and col == 1:
-                axes[row, col].legend(title="Populations")
-
-    plt.tight_layout()
-    plt.savefig(f"Fig/S_{plot_name}.png")
     plt.close()
 
