@@ -26,7 +26,6 @@ comparisons = [
 ]
 
 max_n = 100
-
 for pop_A, pop_B in comparisons:
     expr_A = expr_LK_full[pop_masks[pop_A]]
     expr_B = expr_LK_full[pop_masks[pop_B]]
