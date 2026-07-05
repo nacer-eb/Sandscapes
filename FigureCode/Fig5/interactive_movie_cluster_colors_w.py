@@ -3,10 +3,7 @@ import scipy.spatial.distance as distance
 import vedo
 from loading_utils import load_analysis_data
 
-ctx = load_analysis_data(
-    datafile="../../highdim/datasets/weinreb_v4/data_preprocessed_all_t_markers.npz",
-    runname="WEINREB_VM_1/worker_2_detail.npz"
-)
+ctx = load_analysis_data()
 
 XI_NCA = ctx["XI_NCA"]
 Ls = ctx["Ls"]
