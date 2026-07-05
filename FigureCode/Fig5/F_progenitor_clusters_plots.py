@@ -3,10 +3,10 @@ import vedo
 
 from loading_utils import *
 
-load_preprocessed_progenitors(datafile="../../datasets/weinreb/data_preprocessed_all_t_markers.npz",
+load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_markers.npz",
                                   runname="data_weinreb/worker_0_detail.npz")
 
-ctx = load_preprocessed_progenitors()
+ctx = load_analysis_data()
 Ms_saves_m1k_nca = ctx["Ms_saves_m1k_nca"]
 lin_mask = ctx["lin_mask"]
 kit_mask = ctx["kit_mask"]
@@ -15,26 +15,23 @@ prog_gates = ctx["prog_gates"]
 pop_masks = ctx["pop_masks"]
 
 
+
 fig = vedo.Plotter(axes=0,  size=(3840, 2160), interactive=False, offscreen=True)
 cells_ct = [0, 0]
 cells_ct[0] = vedo.Points(Ms_saves_m1k_nca[lin_mask, :3][~kit_mask], r=7, alpha=1.0, c=[0.9, 0.9, 0.9])
 cells_ct[1] = vedo.Points(Ms_saves_m1k_nca[~lin_mask, :3], r=7, alpha=1.0, c=[0.9, 0.9, 0.9])
 
 gated_population_points = []
-pop_masks = {}
-for pop_name, params in prog_gates.items():
-    mask_slamf1 = (expr_LK_markers[:, slamf1_idx] >= params["Slamf1"][0]) & (expr_LK_markers[:, slamf1_idx] <= params["Slamf1"][1])
-    mask_fcgr3 = (expr_LK_markers[:, fcgr3_idx] >= params["Fcgr3"][0]) & (expr_LK_markers[:, fcgr3_idx] <= params["Fcgr3"][1])
-    pop_mask = mask_slamf1 & mask_fcgr3
-    pop_masks[pop_name] = pop_mask
-    
+for pop_name, pop_mask in pop_masks.items():
     pop_coords = X_LK_nca[pop_mask]
-    print(f"{len(pop_coords)} cells in {pop_name}") 
+    
+    print(f"{len(pop_coords)} cells in {pop_name}")
     if len(pop_coords) > 0:
         pts = vedo.Points(pop_coords, r=8, c=params["color"])
         gated_population_points.append(pts)
 
-assigned_mask = np.zeros(len(expr_LK_markers), dtype=bool)
+
+assigned_mask = np.zeros(len(X_LK_nca), dtype=bool)
 for mask in pop_masks.values():
     assigned_mask = assigned_mask | mask
 cells_unassigned = vedo.Points(X_LK_nca[~assigned_mask], r=7, c="k")

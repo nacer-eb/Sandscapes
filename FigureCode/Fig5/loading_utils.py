@@ -1,6 +1,6 @@
 import numpy as np
 
-def load_preprocessed_progenitors(datafile="../../datasets/weinreb/data_preprocessed_all_t_markers.npz",
+def load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_markers.npz",
                                   runname="data_weinreb/worker_0_detail.npz"):
     
     # Load NCA_mtx, pca, pca_inv and gene_names from the dataset
