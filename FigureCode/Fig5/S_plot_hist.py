@@ -112,9 +112,9 @@ expr_LK_markers = data_matrix_markers[lin_mask][kit_mask]
 X_LK_nca = Ms_saves_m1k_nca[lin_mask, :3][kit_mask]
 
 
-clusters = ["CLP"]
+clusters = ["MEP", "GMP", "CMP", "CLP"]
 colors = [prog_gates[c]["color"] for c in clusters]
-max_n = 100
+max_n = 500
 
 figure_layouts = {
     "CMPCLP_genes": [
