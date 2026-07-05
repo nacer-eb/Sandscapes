@@ -19,6 +19,7 @@ def load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_
     Ms_saves_cpu_detail = data_run["Ms_saves_cpu_detail"]
     Ms_saves_m1k = Ms_saves_cpu_detail[-5][50*2000:-1]
     Ms_saves_m1k_nca = Ms_saves_m1k @ NCA_mtx
+    Ms_saves_cpu_nca = data_run['Ms_saves_cpu_nca']
 
 
     # Restructure markers
@@ -70,6 +71,7 @@ def load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_
         pop_masks[pop_name] = mask_slamf1 & mask_fcgr3
 
     return {
+        "Ms_saves_cpu_nca": Ms_saves_cpu_nca,
         "Ms_saves_m1k": Ms_saves_m1k,
         "Ms_saves_m1k_nca": Ms_saves_m1k_nca,
         "pca_inv": pca_inv,
