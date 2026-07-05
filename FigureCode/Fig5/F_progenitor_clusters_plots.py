@@ -323,7 +323,7 @@ plt.savefig("Fig/S_Slamf1Fcgr3_Expression.png")
 
 clusters = ["MEP", "GMP", "CMP", "CLP"]
 colors = [prog_gates[c]["color"] for c in clusters]
-max_n = 100
+max_n = 200
 
 figure_layouts = {
     "CMPCLP_genes": [
