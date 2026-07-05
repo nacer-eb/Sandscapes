@@ -3,6 +3,19 @@ import scipy.spatial.distance as distance
 import numpy as np
 import vedo
 
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+import matplotlib
+matplotlib.rcParams.update({
+    'font.size': 22,          # General text size
+    'axes.titlesize': 28,     # Title size
+    'axes.labelsize': 24,     # Axis label size (e.g., "Kit")
+    'xtick.labelsize': 24,    # Tick number size
+    'ytick.labelsize': 24,
+    'legend.fontsize': 24
+})
+
+
 # Load XI data
 datafile = "../../datasets/weinreb/data_preprocessed_all_t_markers.npz"
 data = np.load(datafile, allow_pickle=True)
@@ -26,7 +39,7 @@ Ms_saves_m1k_nca = Ms_saves_m1k@NCA_mtx
 Ms_saves_f_nca = Ms_saves_f@NCA_mtx
 
 
-# Coloring based on marker
+# Reorder markers
 pca = data["pca_components"]
 pca_inv = np.linalg.pinv(pca)
 gene_names_high = data["gene_names_high"]
@@ -42,19 +55,8 @@ marker_plotting_order = np.asarray([13, 2, 3, 6, 18, 16, 17, 1, 19, 4, 12, 14, 1
 ordered_genes = matching_genes[marker_plotting_order].tolist()
 data_matrix_markers = (Ms_saves_m1k @ pca_inv.T)[:, marker_mask][:, marker_plotting_order]
 
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import matplotlib
-matplotlib.rcParams.update({
-    'font.size': 22,          # General text size
-    'axes.titlesize': 28,     # Title size
-    'axes.labelsize': 24,     # Axis label size (e.g., "Kit")
-    'xtick.labelsize': 24,    # Tick number size
-    'ytick.labelsize': 24,
-    'legend.fontsize': 24
-})
 
-
+# Prepare Lin bounds
 lin_bounds = {
     "Itgam": [-0.7923, -0.1243],
     "Cd3g": [-0.6321, 0.0455],
@@ -66,6 +68,8 @@ lin_mask = data_matrix_markers[:, ordered_genes.index("Itgam")] <  lin_bounds["I
 for marker in lin_bounds:
     print(marker, lin_bounds[marker][1])
     lin_mask &= data_matrix_markers[:, ordered_genes.index(marker)] <  lin_bounds[marker][1]
+
+# Prepare Kit bounds
 kit_bound = -0.18
 X = data_matrix_markers[lin_mask, ordered_genes.index("Kit")]
 kit_mask = X>kit_bound
@@ -110,7 +114,6 @@ fcgr3_idx = ordered_genes.index("Fcgr3")
 
 expr_LK_markers = data_matrix_markers[lin_mask][kit_mask]
 X_LK_nca = Ms_saves_m1k_nca[lin_mask, :3][kit_mask]
-
 
 
 
