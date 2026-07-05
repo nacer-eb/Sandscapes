@@ -72,26 +72,33 @@ kit_mask = X>kit_bound
 
 
 ###
+LOW_SLAMF1 = [-0.0719, -0.035]
+HIGH_SLAMF1 = [0.2, -0.0]
+
+NO_FCGR3 = [-0.4276, -0.3734]
+LOW_FCGR3 = [-0.32, -0.3]
+HIGH_FCGR3 = [-0.2085, -0.169]
+
 prog_gates = {
     "MEP": {
-        "Slamf1": [-0.0337, -0.0014],
-        "Fcgr3": [-0.4270, -0.43], # 2901
+        "Slamf1": HIGH_SLAMF1,
+        "Fcgr3": NO_FCGR3, # 2901
         "color": "#D49A89"
     },
     
     "GMP": {
-        "Slamf1": [-0.0719, -0.035],
-        "Fcgr3": [-0.2085, -0.169],
+        "Slamf1": LOW_SLAMF1,
+        "Fcgr3": HIGH_FCGR3,
         "color": "#A9D1B3"
     },
     "CMP": {
-        "Slamf1": [-0.0719, -0.035],
-        "Fcgr3": [-0.32, -0.3], #[-0.3204, -0.2673]
+        "Slamf1": LOW_SLAMF1,
+        "Fcgr3": LOW_FCGR3, #[-0.3204, -0.2673]
         "color": "#EBD88A"
     },
     "CLP": {
-        "Slamf1": [-0.0719, -0.035],
-        "Fcgr3": [-0.4276, -0.3734],
+        "Slamf1": LOW_SLAMF1,
+        "Fcgr3": NO_FCGR3,
         "color": "#A3C2E0"
     },
    
