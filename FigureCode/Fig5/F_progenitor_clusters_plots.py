@@ -73,7 +73,7 @@ kit_mask = X>kit_bound
 
 ###
 LOW_SLAMF1 = [-0.0719, -0.035]
-HIGH_SLAMF1 = [-0.02, -0.0]
+HIGH_SLAMF1 = [-0.027, -0.0]
 
 NO_FCGR3 = [-0.4276, -0.3734]
 LOW_FCGR3 = [-0.32, -0.3]
