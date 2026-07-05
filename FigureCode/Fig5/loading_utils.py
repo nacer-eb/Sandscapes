@@ -16,6 +16,8 @@ def load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_
 
     # Load saved units
     data_run = np.load(runname)
+    for k in data_run.keys():
+        print(k)
     Ms_saves_cpu_detail = data_run["Ms_saves_cpu_detail"]
     Ms_saves_m1k = Ms_saves_cpu_detail[-5][50*2000:-1]
     Ms_saves_m1k_nca = Ms_saves_m1k @ NCA_mtx
