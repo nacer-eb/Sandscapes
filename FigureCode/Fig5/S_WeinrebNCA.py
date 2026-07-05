@@ -1,0 +1,53 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+datafile = "../../datasets/weinreb/data_preprocessed_all_t_markers.npz"
+data = np.load(datafile, allow_pickle=True)
+XI = data['XI_pca']
+XI_NCA = data['XI_NCA']
+Ls = data['Ls']
+
+print(len(Ls))
+print(len(np.unique(Ls)))
+
+ct_names = data['ct_names']
+
+fig = plt.figure(figsize=(16, 9), dpi=200)
+ax = fig.add_subplot(projection='3d')
+
+ct_names = data['ct_names']
+cmap = data['cmap'].item()
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+
+pastel_colors = np.array([
+    [0.850, 0.850, 0.850],
+    [0.950, 0.900, 0.550],
+    [0.500, 0.900, 0.900],
+    [0.600, 0.900, 0.600],
+    [1.000, 0.750, 0.500],
+    [0.950, 0.600, 0.600],
+    [0.800, 0.650, 0.500],
+    [0.750, 0.600, 0.900],
+    [1.000, 0.600, 0.800],
+    [0.850, 0.550, 0.850],
+    [0.550, 0.700, 0.950]
+])
+
+custom_cmap = ListedColormap(pastel_colors)
+
+im = ax.scatter(*XI_NCA.T, s=10, c=Ls, cmap=custom_cmap, vmin=0, vmax=len(ct_names))
+cb = plt.colorbar(im)
+cb.set_ticks(np.arange(len(ct_names)) + 0.5)
+cb.set_ticklabels(ct_names)    
+
+ax.set_xlabel("NCA 1", fontsize=16)
+ax.set_ylabel("NCA 2", fontsize=16)
+ax.set_zlabel("NCA 3", fontsize=16)
+plt.savefig("Fig/S_WeinrebNCA.png")
+
+
+
