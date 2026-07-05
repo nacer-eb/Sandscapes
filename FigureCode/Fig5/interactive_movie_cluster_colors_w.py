@@ -1,3 +1,4 @@
+import tqdm
 import numpy as np
 import scipy.spatial.distance as distance
 import vedo
@@ -44,27 +45,6 @@ for i, j in enumerate(selected_ct):
 legend = vedo.LegendBox(cells_ct, pos='bottom-left', width=0.15, height=0.4)
 txt = vedo.Text2D("t="+str(t))
 
-isSaving = True
-def update(event):
-    global t, vid, isSaving
-    t += 1
-    
-    if t >= len(Ms_saves_cpu_nca)-1 and isSaving:
-        isSaving = False
-        vid.close()
-
-    if isSaving:
-        vid.add_frame()
-        print(f"{t} out of {len(Ms_saves_cpu_nca)}")
-
-    t = t%len(Ms_saves_cpu_nca) # loop
-    for i, j in enumerate(selected_ct):
-        cells_ct[i].points = Ms_saves_cpu_nca[t, Ls_end==j, :3]
-    txt.text( "t="+str(t))
-    fig.render()
-    #
-
-
 cam = dict(
     pos=(-87.4642, 7.51542, -47.4414),
     focal_point=(3.70354, -0.350938, 13.7055),
@@ -74,9 +54,16 @@ cam = dict(
     clipping_range=(0.237621, 237.621),
 )
 
-fig.add_callback('Timer', update)
-fig.timer_callback('start')
 fig.show(*cells_ct, legend, txt, axes=0, camera=cam) # cam ?
+
+for t in tqdm.tqdm(range(len(Ms_saves_cpu_nca))):
+    for i, j in enumerate(selected_ct):
+        cells_ct[i].points = Ms_saves_cpu_nca[t, Ls_end==j, :3]
+    txt.text("t=" + str(t))
+    fig.render()
+    vid.add_frame()
+
+vid.close()
 fig.close()
 #
 
