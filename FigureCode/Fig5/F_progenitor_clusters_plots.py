@@ -129,6 +129,7 @@ for pop_name, params in prog_gates.items():
     pop_masks[pop_name] = pop_mask
     
     pop_coords = X_LK_nca[pop_mask]
+    print(f"{len(pop_coords)} cells in {pop_name}") 
     if len(pop_coords) > 0:
         pts = vedo.Points(pop_coords, r=8, c=params["color"])
         gated_population_points.append(pts)
