@@ -161,7 +161,7 @@ fig.close()
 
 
 ## VOLCANO TIME
-"""
+#"""
 import scipy.stats
 import os
 import matplotlib.pyplot as plt
@@ -266,7 +266,7 @@ for pop_A, pop_B in comparisons:
     fig.subplots_adjust(right=0.85)
     plt.savefig(f"Fig/GH_Volcano_pop_{pop_A}_{pop_B}.png")
     plt.close()
-"""
+#"""
 
 
 slamf1_idx = ordered_genes.index("Slamf1")
