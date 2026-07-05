@@ -73,6 +73,7 @@ kit_mask = X>kit_bound
 
 ###
 LOW_SLAMF1 = [-0.0719, -0.039]
+HIGH_SLAMF1 = [-0.025, -0.00]
 
 NO_FCGR3 = [-0.4276, -0.3734]
 LOW_FCGR3 = [-0.32, -0.29]
@@ -80,8 +81,8 @@ HIGH_FCGR3 = [-0.2085, -0.169]
 
 prog_gates = {
     "MEP": {
-        "Slamf1": [-0.025, -0.00],
-        "Fcgr3": [-0.35, -0.32], # 2901
+        "Slamf1": HIGH_SLAMF1,
+        "Fcgr3": [-0.35, -0.32], # in between -/low
         "color": "#D49A89"
     },
     
