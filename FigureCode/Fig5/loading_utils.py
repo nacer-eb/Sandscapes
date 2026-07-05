@@ -56,6 +56,7 @@ def load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_
     slamf1_idx = ordered_genes.index("Slamf1")
     fcgr3_idx = ordered_genes.index("Fcgr3")
     expr_LK_markers = data_matrix_markers[lin_mask][kit_mask]
+    expr_LK_full = (Ms_saves_m1k @ pca_inv.T)[lin_mask][kit_mask]
     X_LK_nca = Ms_saves_m1k_nca[lin_mask, :3][kit_mask]
 
     pop_masks = {}
@@ -73,6 +74,7 @@ def load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_
         "lin_mask": lin_mask,
         "kit_mask": kit_mask,
         "expr_LK_markers": expr_LK_markers,
+        "expr_LK_full": expr_LK_full,
         "X_LK_nca": X_LK_nca,
         "prog_gates": prog_gates,
         "pop_masks": pop_masks
