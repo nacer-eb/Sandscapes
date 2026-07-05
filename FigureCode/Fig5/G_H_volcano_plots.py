@@ -25,6 +25,16 @@ comparisons = [
     ("MEP", "GMP")
 ]
 
+# Axes geometry
+ax_w = 206 / 25.4
+ax_h = 199 / 25.4
+m_left = 0.5
+m_right = 1.2
+m_bottom = 0.8
+m_top = 0.5
+fig_w = ax_w + m_left + m_right
+fig_h = ax_h + m_bottom + m_top
+
 max_n = 100
 for pop_A, pop_B in comparisons:
     expr_A = expr_LK_full[pop_masks[pop_A]]
@@ -46,8 +56,8 @@ for pop_A, pop_B in comparisons:
     mask_low = (n_p_value > pvalue_min) & (mean_diff < -cutoff)
     mask_selected = mask_high | mask_low
 
-    fig = plt.figure(figsize=(9.8102, 9.1346))
-    ax = fig.add_axes([0.05096, 0.08758, 0.82671, 0.85768])
+    fig = plt.figure(figsize=(fig_w, fig_h))
+    ax = fig.add_axes([m_left / fig_w, m_bottom / fig_h, ax_w / fig_w, ax_h / fig_h])
 
     ax.scatter(mean_diff[~mask_selected], n_p_value[~mask_selected], color="lightgray", alpha=0.5)
     ax.scatter(mean_diff[mask_high], n_p_value[mask_high], color=prog_gates[pop_A]["color"], s=150)
