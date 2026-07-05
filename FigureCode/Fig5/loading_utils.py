@@ -68,6 +68,7 @@ def load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_
     return {
         "Ms_saves_m1k": Ms_saves_m1k,
         "Ms_saves_m1k_nca": Ms_saves_m1k_nca,
+        "Ms_saves_cpu_nca": data_run.get("Ms_saves_cpu_nca", None),
         "pca_inv": pca_inv,
         "gene_names_high": gene_names_high,
         "ordered_genes": ordered_genes,
@@ -77,5 +78,8 @@ def load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_
         "expr_LK_full": expr_LK_full,
         "X_LK_nca": X_LK_nca,
         "prog_gates": prog_gates,
-        "pop_masks": pop_masks
+        "pop_masks": pop_masks,
+        "XI_NCA": data.get("XI_NCA", None),
+        "Ls": data.get("Ls", None),
+        "ct_names": data.get("ct_names", None)
     }
