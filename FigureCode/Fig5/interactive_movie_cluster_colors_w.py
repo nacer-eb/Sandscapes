@@ -36,10 +36,9 @@ pastel_colors = np.array([
 
 import vedo
 vid = vedo.Video("A_full_tree_movie.mp4", fps=30)
-fig = vedo.Plotter(axes=0, pos=(1366, 0), size=(1920, 1080), interactive=True, offscreen=False)
+fig = vedo.Plotter(axes=0,  size=(3840, 2160), interactive=False, offscreen=True)
 
 t = 0
-
 selected_ct = np.arange(len(ct_names))
 cells_ct = [0 for i in selected_ct]
 for i, j in enumerate(selected_ct):
@@ -48,8 +47,7 @@ for i, j in enumerate(selected_ct):
 legend = vedo.LegendBox(cells_ct, pos='bottom-left', width=0.15, height=0.4)
 txt = vedo.Text2D("t="+str(t))
 
-
-isSaving = False #True
+isSaving = True
 def update(event):
     global t, vid, isSaving
     t += 1
@@ -63,8 +61,6 @@ def update(event):
         print(f"{t} out of {len(Ms_saves_cpu_nca)}")
 
     t = t%len(Ms_saves_cpu_nca) # loop
-    
-    #cells.points = Ms_saves_cpu_nca[t, :, :3]
     for i, j in enumerate(selected_ct):
         cells_ct[i].points = Ms_saves_cpu_nca[t, Ls_end==j, :3]
     txt.text( "t="+str(t))
