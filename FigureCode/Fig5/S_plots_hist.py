@@ -129,6 +129,15 @@ figure_layouts = {
     ]
 }
 
+
+pop_masks = {}
+for pop_name, params in prog_gates.items():
+    mask_slamf1 = (expr_LK_markers[:, slamf1_idx] >= params["Slamf1"][0]) & (expr_LK_markers[:, slamf1_idx] <= params["Slamf1"][1])
+    mask_fcgr3 = (expr_LK_markers[:, fcgr3_idx] >= params["Fcgr3"][0]) & (expr_LK_markers[:, fcgr3_idx] <= params["Fcgr3"][1])
+    pop_mask = mask_slamf1 & mask_fcgr3
+    pop_masks[pop_name] = pop_mask
+
+
 for plot_name, layout in figure_layouts.items():
     fig, axes = plt.subplots(3, 2, figsize=(16, 18))
     
