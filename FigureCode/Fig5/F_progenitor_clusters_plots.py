@@ -75,7 +75,7 @@ kit_mask = X>kit_bound
 prog_gates = {
     "MEP": {
         "Slamf1": [-0.0337, -0.0014],
-        "Fcgr3": [-0.4270, -0.2901],
+        "Fcgr3": [-0.4270, -0.43], # 2901
         "color": "#D49A89"
     },
     
