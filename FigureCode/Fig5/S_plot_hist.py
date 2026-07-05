@@ -150,7 +150,7 @@ for plot_name, layout in figure_layouts.items():
             weights = []
             
             for c in clusters:
-                expr_pop = expr_LK[pop_masks[c]][:, gene_idx]
+                expr_pop = expr_LK_markers[pop_masks[c]][:, gene_idx]
                 if len(expr_pop) > max_n:
                     idx = np.random.choice(len(expr_pop), max_n, replace=False)
                     expr_pop = expr_pop[idx]
