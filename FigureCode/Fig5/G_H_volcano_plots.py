@@ -4,14 +4,8 @@ import numpy as np
 import vedo
 
 # Load XI data
-datafile = "../../datasets/weinreb/data_preprocessed_all_t_markers.npz"
-data = np.load(datafile, allow_pickle=True)
-XI = data['XI_pca'][::1]
-XI_NCA = data['XI_NCA'][::1]
+data = np.load("../../datasets/weinreb/data_preprocessed_all_t_markers.npz", allow_pickle=True)
 NCA_mtx = data['NCA_mtx'].T
-Ls = data['Ls'][::1]
-ct_names = data['ct_names']
-cmap = data['cmap'].item()
 
 # Load simulation snapshots
 runname = "data_weinreb/worker_0_detail"
