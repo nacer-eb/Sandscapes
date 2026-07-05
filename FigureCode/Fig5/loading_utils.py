@@ -10,6 +10,10 @@ def load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_
     pca_inv = np.linalg.pinv(pca)
     gene_names_high = data["gene_names_high"]
 
+    XI_NCA = data['XI_NCA']
+    Ls = data['Ls']
+    ct_names = data['ct_names']
+
     # Load saved units
     data_run = np.load(runname)
     Ms_saves_cpu_detail = data_run["Ms_saves_cpu_detail"]
@@ -68,7 +72,6 @@ def load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_
     return {
         "Ms_saves_m1k": Ms_saves_m1k,
         "Ms_saves_m1k_nca": Ms_saves_m1k_nca,
-        "Ms_saves_cpu_nca": data_run.get("Ms_saves_cpu_nca", None),
         "pca_inv": pca_inv,
         "gene_names_high": gene_names_high,
         "ordered_genes": ordered_genes,
@@ -79,7 +82,7 @@ def load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_
         "X_LK_nca": X_LK_nca,
         "prog_gates": prog_gates,
         "pop_masks": pop_masks,
-        "XI_NCA": data.get("XI_NCA", None),
-        "Ls": data.get("Ls", None),
-        "ct_names": data.get("ct_names", None)
+        "XI_NCA": XI_NCA,
+        "Ls": Ls,
+        "ct_names": ct_names
     }
