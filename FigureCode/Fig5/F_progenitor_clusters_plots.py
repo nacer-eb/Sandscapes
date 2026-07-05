@@ -27,7 +27,7 @@ for pop_name, pop_mask in pop_masks.items():
     
     print(f"{len(pop_coords)} cells in {pop_name}")
     if len(pop_coords) > 0:
-        pts = vedo.Points(pop_coords, r=8, c=params["color"])
+        pts = vedo.Points(pop_coords, r=8, c=prog_gates[pop_name]["color"])
         gated_population_points.append(pts)
 
 
