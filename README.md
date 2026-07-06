@@ -10,4 +10,4 @@ Code, figures and movies for the paper: *Sandscapes: self-modifying energy lands
 *   **`Movies/`**: Saved movies/animations of simulations, as referenced in the paper.
 *   **`datasets/`**: This directory contains:
     *   Scripts to download, extract, and preprocess the full raw datasets.
-    *   A preprocessed .npz sample used to directly generate the paper figures (primarily required for Fig1 and Fig5).
+    *   A preprocessed .npz used to generate Fig5.
