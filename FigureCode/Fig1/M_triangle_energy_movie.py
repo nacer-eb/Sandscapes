@@ -79,7 +79,7 @@ if __name__ == "__main__":
     os.makedirs(dirname, exist_ok=True)
 
     contxt = multiprocessing.get_context('spawn')
-    with ProcessPoolExecutor(max_workers=n_processes, mp_context=contxt) as executor:
+    with ProcessPoolExecutor(max_workers=np.maximum(n_processes, 4), mp_context=contxt) as executor:
         list(tqdm.tqdm(executor.map(generate_3d_frames, tasks), total=len(tasks)))
 
     filename="triangle_movie_v7_longer.mp4"
