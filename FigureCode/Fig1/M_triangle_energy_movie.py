@@ -1,10 +1,12 @@
+import os
+os.environ["VTK_DEFAULT_OPENGL_WINDOW"] = "vtkOSOpenGLRenderWindow"  # force CPU/OSMesa
+
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 import scipy.spatial.distance as distance
 import numpy as np
 
-import os
 import shutil
 import subprocess
 from concurrent.futures import ProcessPoolExecutor
