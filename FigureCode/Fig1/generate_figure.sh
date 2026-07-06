@@ -1,6 +1,8 @@
 #!/bin/bash
 
 
+(cd ../../datasets/mnist/ python3 preprocess_data.py)
+
 python3 B_C_simulate_triangle.py
 python3 B_plot_3d_trajectory.py
 python3 C_calc_triangle_energy.py
