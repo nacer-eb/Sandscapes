@@ -31,7 +31,7 @@ fig = vedo.Plotter(axes=0, pos=(1366, 0), size=(1920, 1080), interactive=False, 
 cells = vedo.Points(embed, r=4.0).cmap("tab10", labels_sub, vmin=0, vmax=9)
 cells.add_scalarbar(title="Class", nlabels=10)
 
-cam_2d = dict(
+cam = dict(
     pos=(2.03635, 2.46198, 64.0612),
     focal_point=(2.03635, 2.46198, 0.0),
     viewup=(0, 1, 0),
