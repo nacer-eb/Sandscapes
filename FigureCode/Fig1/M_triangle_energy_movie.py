@@ -1,5 +1,5 @@
 import os
-os.environ["VTK_DEFAULT_OPENGL_WINDOW"] = "vtkOSOpenGLRenderWindow"  # force CPU/OSMesa
+#os.environ["VTK_DEFAULT_OPENGL_WINDOW"] = "vtkOSOpenGLRenderWindow"  # force CPU/OSMesa
 
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
