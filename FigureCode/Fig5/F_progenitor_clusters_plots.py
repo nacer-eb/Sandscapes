@@ -3,8 +3,9 @@ import vedo
 
 from loading_utils import *
 
+
 load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_markers.npz",
-                                  runname="data_weinreb/worker_0_detail.npz")
+                                  runname="./data_weinreb/worker_0_detail.npz")
 
 ctx = load_analysis_data()
 Ms_saves_m1k_nca = ctx["Ms_saves_m1k_nca"]
@@ -16,7 +17,7 @@ pop_masks = ctx["pop_masks"]
 
 
 
-fig = vedo.Plotter(axes=0,  size=(3840, 2160), interactive=False, offscreen=True)
+fig = vedo.Plotter(axes=0,  size=(3840, 2160), interactive=True, offscreen=False)
 cells_ct = [0, 0]
 cells_ct[0] = vedo.Points(Ms_saves_m1k_nca[lin_mask, :3][~kit_mask], r=7, alpha=1.0, c=[0.9, 0.9, 0.9])
 cells_ct[1] = vedo.Points(Ms_saves_m1k_nca[~lin_mask, :3], r=7, alpha=1.0, c=[0.9, 0.9, 0.9])
@@ -47,7 +48,7 @@ cam = dict(
 )
 
 fig.show(*cells_ct, cells_unassigned, *gated_population_points, axes=0, camera=cam)
-fig.screenshot("Fig/F_LIN_KIT_CLUSTERS.png")
+#fig.screenshot("Fig/F_LIN_KIT_CLUSTERS.png")
 fig.close()
 
 
