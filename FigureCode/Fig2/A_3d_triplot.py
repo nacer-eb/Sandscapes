@@ -16,8 +16,7 @@ sns.set_theme(palette="pastel")
 import scipy.spatial.distance as distance
 
 import jax
-# DISABLED WARNING --- Enable float64 globally
-jax.config.update("jax_enable_x64", True) # WARNING !!!!!!! WARNING !!!!!!!
+jax.config.update("jax_enable_x64", True)
 
 import jax.numpy as jnp
 #from sigdiff_k_metric_jax import *
