@@ -66,5 +66,5 @@ plt.show()
 
 
 # Save
-np.savez("data_mnist_tmp.npz", XI=data_partitionned, XI_pca=embed_pca, XI_alpha=embed_alpha, XI_NCA=embed_nca,
+np.savez("data_mnist.npz", XI=data_partitionned, XI_pca=embed_pca, XI_alpha=embed_alpha, XI_NCA=embed_nca,
          NCA_mtx=NCA_mtx, pca_components=pca_components, alpha_components=alpha_components, Ls=Ls_partitionned, allow_pickle=True)
