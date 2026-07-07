@@ -37,8 +37,8 @@ q = args.q
 gamma = jnp.asarray([800.0, 150.0, 1.0])*q + 1E-5
 beta = 1.5 
 K = 2000*10*4  # 4
-tmax= K*30 
 
+tmax= K*30  # here it's inverse rate
 a = (tmax)/K
 
 key = jax.random.key(args.seed)
