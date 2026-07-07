@@ -44,7 +44,6 @@ if __name__ == "__main__":
     output_dir = args.output_dir; os.makedirs(output_dir, exist_ok=True)
     gamma = 1E-5
 
-    EXCLUDED_CT_MODE = args.excluded_ct_mode
     
     K = args.K #1000 #5000;  #for testing reduced by 10
     a = args.a
