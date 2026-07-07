@@ -19,7 +19,7 @@ import jax
 jax.config.update("jax_enable_x64", True)
 
 import jax.numpy as jnp
-#from sigdiff_k_metric_jax import *
+
 import numpy as np
 from sandscapes_main import *
 
