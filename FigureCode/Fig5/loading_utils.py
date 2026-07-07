@@ -21,9 +21,10 @@ def load_analysis_data(datafile="../../datasets/weinreb/data_preprocessed_all_t_
     Ms_saves_m1k = Ms_saves_cpu_detail[-5][50*2000:-1]
     Ms_saves_m1k_nca = Ms_saves_m1k @ NCA_mtx
 
-    if use_full_nca:
-        Ms_saves_cpu_nca = np.load(runname_nca)['Ms_saves_cpu_nca']
 
+    Ms_saves_cpu_nca = np.load(runname_nca)['Ms_saves_cpu_nca']
+    
+    
 
     # Restructure markers
     gene_markers = [

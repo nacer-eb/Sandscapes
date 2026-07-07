@@ -48,7 +48,7 @@ cam = dict(
 )
 
 fig.show(*cells_ct, cells_unassigned, *gated_population_points, axes=0, camera=cam)
-#fig.screenshot("Fig/F_LIN_KIT_CLUSTERS.png")
+fig.screenshot("Fig/F_LIN_KIT_CLUSTERS.png")
 fig.close()
 
 

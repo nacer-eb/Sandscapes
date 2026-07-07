@@ -129,6 +129,7 @@ plt.savefig("Fig/D_LIN_GATE_2.png")
 
 
 ##### FIGURE 5 E #####################
+
 fig = vedo.Plotter(axes=0,  size=(3840, 2160), interactive=False, offscreen=True)
 cells_ct = [0, 0, 0]
 cells_ct[0] = vedo.Points(Ms_saves_m1k_nca[lin_mask, :3][kit_mask], r=7, alpha=1.0, c="k")
@@ -136,12 +137,12 @@ cells_ct[1] = vedo.Points(Ms_saves_m1k_nca[lin_mask, :3][~kit_mask], r=7, alpha=
 cells_ct[2] = vedo.Points(Ms_saves_m1k_nca[~lin_mask, :3], r=7, alpha=1.0, c=[0.9, 0.9, 0.9])
 
 cam = dict(
-    pos=(89.9062, 21.2696, -50.2680),
-    focal_point=(8.34769, -3.25451, -16.7184),
-    viewup=(-0.367635, -0.0479114, -0.928735),
+    pos=(41.2577, 18.8157, -23.8188),
+    focal_point=(7.54366, 8.67814, -9.95046),
+    viewup=(-0.367635, -0.0479129, -0.928735),
     roll=92.8505,
-    distance=91.5358,
-    clipping_range=(0.304213, 304.213),
+    distance=37.8383,
+    clipping_range=(0.228260, 228.260),
 )
 
 fig.show(*cells_ct, axes=0, camera=cam)
