@@ -39,7 +39,7 @@ XIs_colors = np.asarray([[176.0, 213.0, 173.0, 255.0], [141, 211.0, 242.0, 255.0
 fig, axs = plt.subplots(2, 4, figsize=(16, 8), dpi=200, sharex=True, sharey=True)
 
 for i, t in enumerate(ts):
-    axs.ravel()[i].scatter(Xs_saves[t, :, 0], Xs_saves[t, :, 1], s=80, edgecolor="k", facecolor="w", alpha=0.2)
+    axs.ravel()[i].scatter(Xs_saves[t, :, 0], Xs_saves[t, :, 1], s=80, edgecolor="k", facecolor="w", alpha=0.2, zorder=21)
     axs.ravel()[i].scatter(*XIs.T, marker="*", color=XIs_colors, s=600, edgecolor="k", lw=1.5, zorder=20)
 
 
