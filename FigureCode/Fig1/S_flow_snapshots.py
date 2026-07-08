@@ -34,12 +34,14 @@ y = data["y"]
 ts = np.asarray([0, 30, 70, 100, 150, 260, 580, 900], dtype=int)
 
 size = len(x)
+XIs_colors = np.asarray([[176.0, 213.0, 173.0, 255.0], [141, 211.0, 242.0, 255.0], [250.0, 205.0, 211.0, 255.0]])/255.0
 
-
-fig, axs = plt.subplots(2, 4, figsize=(16, 8), sharex=True, sharey=True)
+fig, axs = plt.subplots(2, 4, figsize=(16, 8), dpi=200, sharex=True, sharey=True)
 
 for i, t in enumerate(ts):
     axs.ravel()[i].scatter(Xs_saves[t, :, 0], Xs_saves[t, :, 1], s=80, edgecolor="k", facecolor="w", alpha=0.2)
+    axs.ravel()[i].scatter(*XIs.T, marker="*", color=XIs_colors, s=600, edgecolor="k", lw=1.5, zorder=20)
+
 
     axs.ravel()[i].streamplot(x, y, manifold_grads[t, :, 0].reshape(size, size), manifold_grads[t, :, 1].reshape(size, size),
                               color=(0.1, 0.1, 0.1, 0.2))
