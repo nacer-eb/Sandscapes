@@ -121,9 +121,9 @@ blocksize=len(gammas)//500
 N_fps_space = calculate_catastrophe_byblock(Ms_probes[:, None, :], gammas, XIs, beta, blocksize).reshape(size_gamma, size_gamma)
 
 import os
-os.makedirs('data', exist_ok=True)
+os.makedirs('data_catastrophe_2', exist_ok=True)
 
-jnp.savez("data/catastrophe_data_growth.npz",
+jnp.savez("data_catastrophe_2/catastrophe_data_growth.npz",
          N_fps_space=N_fps_space,
          gammas=gammas,
          Ms_probes=Ms_probes,
