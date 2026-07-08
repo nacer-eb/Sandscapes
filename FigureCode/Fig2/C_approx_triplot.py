@@ -1,7 +1,3 @@
-# SET GPU TO USE
-import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-
 import tqdm
 
 import matplotlib
@@ -13,8 +9,7 @@ sns.set_theme(palette="pastel")
 import scipy.spatial.distance as distance
 
 import jax
-# DISABLED WARNING --- Enable float64 globally
-jax.config.update("jax_enable_x64", True) # WARNING !!!!!!! WARNING !!!!!!!
+jax.config.update("jax_enable_x64", True)
 
 import jax.numpy as jnp
 import numpy as np
