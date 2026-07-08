@@ -1,0 +1,6 @@
+
+data = np.load("energy_save.npz") Es_f_norm_manifold=Es_f_norm_manifold, Es_f_norm_cells=Es_f_norm_cells,
+manifold_grads = data["manifold_grads"], x=x, y=x.copy())
+
+
+manifold_grads
