@@ -123,8 +123,8 @@ blocksize=len(gammas)//500
 N_fps_space = calculate_catastrophe_byblock(Ms_probes[:, None, :], gammas, XIs, beta, blocksize).reshape(size_gamma, size_gamma)
 
 import os
-os.makedirs('data', exist_ok=True)
-jnp.savez("data/catastrophe_data.npz",
+os.makedirs('data_catastrophe', exist_ok=True)
+jnp.savez("data_catastrophe/catastrophe_data.npz",
          N_fps_space=N_fps_space,
          gammas=gammas,
          Ms_probes=Ms_probes,
@@ -144,8 +144,8 @@ blocksize=len(gammas)//500
 N_fps_space = calculate_catastrophe_byblock(Ms_probes[:, None, :], gammas, XIs, beta, blocksize).reshape(size_gamma, size_gamma)
 
 import os
-os.makedirs('data', exist_ok=True)
-jnp.savez("data/catastrophe_data_inset.npz",
+os.makedirs('data_catastrophe', exist_ok=True)
+jnp.savez("data_catastrophe/catastrophe_data_inset.npz",
          N_fps_space=N_fps_space,
          gammas=gammas,
          Ms_probes=Ms_probes,
@@ -169,9 +169,9 @@ blocksize=len(gammas)//500
 N_fps_space = calculate_catastrophe_byblock(Ms_probes[:, None, :], gammas, XIs, beta, blocksize).reshape(size_gamma, size_gamma)
 
 import os
-os.makedirs('data', exist_ok=True)
+os.makedirs('data_catastrophe', exist_ok=True)
 
-jnp.savez("data/catastrophe_data_5.npz",
+jnp.savez("data_catastrophe/catastrophe_data_5.npz",
          N_fps_space=N_fps_space,
          gammas=gammas,
          Ms_probes=Ms_probes,
