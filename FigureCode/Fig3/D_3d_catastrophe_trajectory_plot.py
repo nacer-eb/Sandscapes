@@ -156,7 +156,7 @@ plt.tight_layout()
 
 zticks = np.arange(0, 1400+200, 200)
 ax.set_zticks(zticks)
-ax.set_zticklabels(zticks)
+ax.set_zticklabels([""]*len(zticks))
 ax.tick_params(axis='z', color='none')
 
 
