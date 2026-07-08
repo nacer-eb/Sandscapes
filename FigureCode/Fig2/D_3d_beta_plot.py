@@ -1,9 +1,6 @@
 import sys
 sys.path.append('../../common') # include the common folder
 
-# SET GPU TO USE
-import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 import tqdm
 
@@ -17,8 +14,7 @@ sns.set_theme(palette="pastel")
 import scipy.spatial.distance as distance
 
 import jax
-# DISABLED WARNING --- Enable float64 globally
-jax.config.update("jax_enable_x64", True) # WARNING !!!!!!! WARNING !!!!!!!
+jax.config.update("jax_enable_x64", True)
 
 import jax.numpy as jnp
 
@@ -128,13 +124,11 @@ Is_colors = np.asarray([[176.0, 213.0, 173.0, 255.0], [141, 211.0, 242.0, 255.0]
 
 def calc_y_tau_eps(beta, d_x, d_y, x_0=10**(-7), eps=0.1):
 
-    beta_C_x = 2/(d_x**2)
-
-    t_A = - 1.0/(beta/beta_C_x - 1) * jnp.log(eps/x_0)
-    t_B = + jnp.log( jnp.abs( (1.0-2.0*eps/d_x) / (1.0-beta_C_x/beta) )  )
-    t_C = + 1.0/(beta/beta_C_x - 1.0) * jnp.log(eps*beta*d_x)
+    t_A = -(1.0/(0.5*beta*(d_x**2)-1.0)) * jnp.log( 1.0/(beta*d_x*x_0) )
+    t_B = -1.0 * jnp.log( (d_x/2.0-1.0/(beta*d_x)) / ( d_x/2.0 - eps ) )
+    
     y_n_t_eps = (1.0/3.0) * d_y * jnp.exp(
-        t_A + t_B + t_C
+        t_A + t_B
     )
 
     return y_n_t_eps #- d_y/2.0
