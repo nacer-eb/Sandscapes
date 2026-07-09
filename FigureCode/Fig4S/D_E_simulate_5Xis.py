@@ -31,7 +31,7 @@ XIs = jnp.asarray([ [-1.0, -1.3],
 
 XIs -= jnp.mean(XIs, axis=0)
 gamma = 1E-2 #5
-beta = 1.5 
+beta = 1.0 
 K = args.K
 
 a = 3
