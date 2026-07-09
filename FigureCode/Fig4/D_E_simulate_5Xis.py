@@ -27,6 +27,8 @@ XIs = jnp.asarray([ [-1.75, -1.0],
                     [0, 1.0],
                     [2.0, 1.0],
                     [0.9, 3.0]])
+
+
 XIs -= jnp.mean(XIs, axis=0)
 gamma = 1E-2 #5
 beta = 1.0 
