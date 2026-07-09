@@ -227,12 +227,12 @@ color=(0.751, 0.251, 0.251)
 ax_bot2.plot(beta_lin, y_tau_eps, lw=10, color=color, alpha=0.6, label="Analytical Approximation")
 beta_coarse = jnp.linspace(jnp.min(beta_lin), jnp.max(beta_lin), 20)
 for i, b in enumerate(beta_coarse):
-    Xs_saves_tanh_approx = simulate_tanh_sys(X_0, d_x, d_y, jnp.asarray([b]), tmax, lr, noise_level, keys, tbeta_range)# _approx
-    Xs_saves_tanh_approx = Xs_saves_tanh_approx[:, Xs_saves_tanh_approx[-1, :, 0]>0.2]
+    Xs_saves_tanh = simulate_tanh_sys(X_0, d_x, d_y, jnp.asarray([b]), tmax, lr, noise_level, keys, tbeta_range)
+    Xs_saves_tanh = Xs_saves_tanh[:, Xs_saves_tanh[-1, :, 0]>0.2]
 
-    ts_tau = jnp.argmax(jnp.abs(Xs_saves_tanh_approx[:, :, 0]) > eps, axis=0)
-    cell_choice = jnp.arange(Xs_saves_tanh_approx.shape[1], dtype=int)
-    y_est = jnp.mean(Xs_saves_tanh_approx[ts_tau, cell_choice, 1])
+    ts_tau = jnp.argmax(jnp.abs(Xs_saves_tanh[:, :, 0]) > eps, axis=0)
+    cell_choice = jnp.arange(Xs_saves_tanh.shape[1], dtype=int)
+    y_est = jnp.mean(Xs_saves_tanh[ts_tau, cell_choice, 1])
 
     if i==0:
         ax_bot2.scatter(b, y_est, color=(0.04, 0.04, 0.04), s=80, zorder=4, label="Numerical Simulation")
