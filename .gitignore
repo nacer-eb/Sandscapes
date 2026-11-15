@@ -25,5 +25,6 @@ share
 *.mtx
 *.txt
 *.h5ad
+*.mmap
 FigureCode/Fig3/data_link
 FigureCode/*/temp_frames

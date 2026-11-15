@@ -30,15 +30,15 @@ def calculate_signals(beta, D_2):
     return S # (N-Cells, N-patterns)
 
 @jax.jit
-def calculate_aggregate_signals(S, mute_cells):
-    S_sum = (S * mute_cells[:, None]).sum(axis=0)
+def calculate_aggregate_signals(S, mute_cells, w_mu):
+    S_sum = w_mu * (S * mute_cells[:, None]).sum(axis=0)
     return S_sum #(N-patterns, )
 
 @jax.jit
-def calculate_gradient(X, XI, beta, gamma, mute_cells):
+def calculate_gradient(X, XI, beta, gamma, mute_cells, w_mu):
     D_2 = calculate_distances(X, XI)
     S = calculate_signals(beta, D_2)
-    S_sum = calculate_aggregate_signals(S, mute_cells)+gamma
+    S_sum = calculate_aggregate_signals(S, mute_cells, w_mu)+gamma
 
     coefs = S / (S_sum)[None, :] # (N-cells, N-patterns)
     N = coefs.sum(axis=-1)  + numerical_eps # (N-cells,)
@@ -47,30 +47,31 @@ def calculate_gradient(X, XI, beta, gamma, mute_cells):
 
 
 @jax.jit
-def calculate_Es(X, XI, beta, gamma, mute_cells):
+def calculate_Es(X, XI, beta, gamma, mute_cells, w_mu):
     D_2 = calculate_distances(X, XI)
 
     # more numerically stable
-    log_S_sum_raw = jax.nn.logsumexp(-beta * D_2, b=mute_cells[:, None], axis=0)
-    log_S_sum = jnp.logaddexp(log_S_sum_raw, jnp.log(gamma))
+    log_S_sum_raw = jax.nn.logsumexp(-beta * D_2, b=mute_cells[:, None], axis=0) + jnp.log(w_mu) # log(ab) = log(a) + log(b)
+    log_S_sum = (1.0/w_mu) *  jnp.logaddexp(log_S_sum_raw, jnp.log(gamma))
     Es = log_S_sum.sum(axis=0)
     
     return Es
 
 
 @jax.jit
-def calculate_grads_and_Es(X, XI, beta, gamma, mute_cells):
+def calculate_grads_and_Es(X, XI, beta, gamma, mute_cells, w_mu):
     D_2 = calculate_distances(X, XI)
     S = calculate_signals(beta, D_2)
-    S_sum = calculate_aggregate_signals(S, mute_cells) + gamma
+    S_sum = calculate_aggregate_signals(S, mute_cells, w_mu)+gamma
 
     coefs = S / (S_sum)[None, :] # (N-cells, N-patterns)
-    N = coefs.sum(axis=-1) + numerical_eps # (N-cells,)
-    grad = (coefs/N[:, None]) @ XI - X # (N-cells, N-dim)
+    N = coefs.sum(axis=-1)  + numerical_eps # (N-cells,)
+    grad = (coefs/N[:, None])  @ XI - X # (N-cells, N-dim)
+
 
     # more numerically stable
-    log_S_sum_raw = jax.nn.logsumexp(-beta * D_2, b=mute_cells[:, None], axis=0)
-    log_S_sum = jnp.logaddexp(log_S_sum_raw, jnp.log(gamma))
+    log_S_sum_raw = jax.nn.logsumexp(-beta * D_2, b=mute_cells[:, None], axis=0) + jnp.log(w_mu) # log(ab) = log(a) + log(b)
+    log_S_sum = (1.0/w_mu) *  jnp.logaddexp(log_S_sum_raw, jnp.log(gamma))
     Es = log_S_sum.sum(axis=0)
 
     # assumes you have a probe so returns only the grad for last cell (i.e. the probe)
@@ -79,7 +80,7 @@ def calculate_grads_and_Es(X, XI, beta, gamma, mute_cells):
 
 
 @jax.jit
-def _training_loop(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level, keys, mute_cells_ts, tbeta_range):
+def _training_loop(X_0, X_STEM, XI, betas, gamma, w_mu, tmax, lr, noise_level, keys, mute_cells_ts, tbeta_range):
     # keys should be of shape len(betas)*tmax
 
     @jax.jit
@@ -87,7 +88,7 @@ def _training_loop(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level, keys, m
         beta = betas[t//tmax]
         key = keys[t]
 
-        grad = calculate_gradient(X, XI, beta, gamma, mute_cells_ts[t])
+        grad = calculate_gradient(X, XI, beta, gamma, mute_cells_ts[t], w_mu)
         X_new = X + ( lr*grad + jax.random.normal(key, shape=X.shape) * (1.0/10.0)**noise_level )
 
         X_new_cond = (1-(mute_cells_ts[t][:, None]==0)) * X_new + (mute_cells_ts[t][:, None]==0) * X_STEM
@@ -99,23 +100,27 @@ def _training_loop(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level, keys, m
 
 
 # Wrapper
-def training_loop(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level, keys, mute_cells_ts=None):
-    assert ~jnp.isscalar(betas)
+def training_loop(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level, keys, mute_cells_ts=None, w_mu=None):
+    assert (not jnp.isscalar(betas))
     assert len(keys)==len(betas)*tmax
 
     tbeta_range = jnp.arange(tmax*len(betas), dtype=int)
     if mute_cells_ts is None:
         mute_cells_ts = jnp.ones((tmax*len(betas), len(X_0)))
 
+    
+    if w_mu is None:
+        w_mu = jnp.ones((len(XI)))
+
     assert mute_cells_ts.shape[0] == tmax*len(betas)
     assert mute_cells_ts.shape[1] == len(X_0)
     assert X_0.shape[1] == XI.shape[1]
 
-    return _training_loop(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level, keys, mute_cells_ts, tbeta_range)
+    return _training_loop(X_0, X_STEM, XI, betas, gamma, w_mu, tmax, lr, noise_level, keys, mute_cells_ts, tbeta_range)
 
 
 @jax.jit
-def _training_loop_linear_growth(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level, keys, growth_rate, t_offset, tbeta_range):
+def _training_loop_linear_growth(X_0, X_STEM, XI, betas, gamma, w_mu, tmax, lr, noise_level, keys, growth_rate, t_offset, tbeta_range):
     # keys should be of shape len(betas)*tmax
     k = jnp.arange(len(X_0))
 
@@ -125,7 +130,7 @@ def _training_loop_linear_growth(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_
         beta = betas[t//tmax]
         key = keys[t]
 
-        grad = calculate_gradient(X, XI, beta, gamma, mute_cells_ts)
+        grad = calculate_gradient(X, XI, beta, gamma, mute_cells_ts, w_mu)
         X_new = X + ( lr*grad + jax.random.normal(key, shape=X.shape) * (1.0/10.0)**noise_level )
 
         X_new_cond = (1-(mute_cells_ts[:, None]==0)) * X_new + (mute_cells_ts[:, None]==0) * X_STEM
@@ -137,20 +142,24 @@ def _training_loop_linear_growth(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_
 
 
 # Wrapper
-def training_loop_linear_growth(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level, keys, growth_rate, t_offset):
-    assert ~jnp.isscalar(betas)
+def training_loop_linear_growth(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level, keys, growth_rate, t_offset, w_mu=None):
+    assert not jnp.isscalar(betas)
     assert len(keys)==(len(betas)*tmax)
 
+
+    if w_mu is None:
+        w_mu = jnp.ones((len(XI)))
+        
     tbeta_range = jnp.arange(tmax*len(betas), dtype=int)
     assert X_0.shape[1] == XI.shape[1]
 
-    return _training_loop_linear_growth(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level,
+    return _training_loop_linear_growth(X_0, X_STEM, XI, betas, gamma, w_mu, tmax, lr, noise_level,
                                         keys, growth_rate, t_offset, tbeta_range)
 
 
 
 @jax.jit
-def training_loop_nosave(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level, keys, mute_cells_ts):
+def training_loop_nosave(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level, keys, mute_cells_ts, w_mu):
     # keys should be of shape len(betas)*tmax
 
     @jax.jit
@@ -158,12 +167,12 @@ def training_loop_nosave(X_0, X_STEM, XI, betas, gamma, tmax, lr, noise_level, k
         beta = betas[t//tmax]
         key = keys[t]
 
-        grad = calculate_gradient(X, XI, beta, gamma, mute_cells_ts[t])
+        grad = calculate_gradient(X, XI, beta, gamma, mute_cells_ts[t], w_mu)
         X_new = X + ( lr*grad + jax.random.normal(key, shape=X.shape) * (1.0/10.0)**noise_level )
 
         X_new_cond = (1-(mute_cells_ts[t][:, None]==0)) * X_new + (mute_cells_ts[t][:, None]==0) * X_STEM
         return X_new_cond
 
     
-    Xs_final = jax.lax.fori_loop(0, tmax, training_iter, X_0)
+    Xs_final = jax.lax.fori_loop(0, tmax*len(betas), training_iter, X_0)
     return Xs_final
