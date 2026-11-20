@@ -82,9 +82,9 @@ def calculate_catastrophe_shard(Ms_probes, z_mus, gamma, XIs, beta, w_mu):
 
 def calculate_catastrophe_byblock(Ms_probes, z_mus, gamma, XIs, beta, w_mu, blocksize):
     
-    N_fps_all = jnp.zeros((len(gammas)))
-    for i in tqdm.tqdm(range(0, len(gammas), blocksize)):
-        i_max = min(len(gammas), i+blocksize)
+    N_fps_all = jnp.zeros((len(z_mus)), dtype=int)
+    for i in tqdm.tqdm(range(0, len(z_mus), blocksize)):
+        i_max = min(len(z_mus), i+blocksize)
         z_mus_block = z_mus[i:i_max] # we multiply by w_mu bc here we are simulating various z_mu conditions through gamma
 
         N_fps_block = calculate_catastrophe_shard(Ms_probes, z_mus_block, gamma, XIs, beta, w_mu)
@@ -105,23 +105,25 @@ print(Ms_probes.nbytes)
 
 ## CALCULATE BROAD Z-SPACE
 size_gamma = 500
-gammas_lin_x = jnp.linspace(0.001, 2000.0, size_gamma)
-gammas_lin_y = jnp.linspace(0.001, 600.0, size_gamma)
-gammas_x, gammas_y = jnp.meshgrid(gammas_lin_x, gammas_lin_y)
+z_mus_lin_x = jnp.linspace(0.001, 2000.0, size_gamma)
+z_mus_lin_y = jnp.linspace(0.001, 600.0, size_gamma)
+z_mus_x, z_mus_y = jnp.meshgrid(z_mus_lin_x, z_mus_lin_y)
 
-gammas = jnp.ones((size_gamma**2, 3))
-gammas = gammas.at[:, 0].set(gammas_x.ravel())
-gammas = gammas.at[:, 1].set(gammas_y.ravel())
+z_mus = jnp.ones((size_gamma**2, 3))
+z_mus = z_mus.at[:, 0].set(z_mus_x.ravel())
+z_mus = z_mus.at[:, 1].set(z_mus_y.ravel())
 
-blocksize=len(gammas)//500
-N_fps_space = calculate_catastrophe_byblock(Ms_probes[:, None, :], gammas, XIs, beta, w_mu, blocksize).reshape(size_gamma, size_gamma)
+blocksize=len(z_mus)//500
+
+gamma = 0
+N_fps_space = calculate_catastrophe_byblock(Ms_probes[:, None, :], z_mus, gamma, XIs, beta, w_mu, blocksize).reshape(size_gamma, size_gamma)
 
 import os
 os.makedirs('data_catastrophe_2', exist_ok=True)
 
 jnp.savez("data_catastrophe_2/catastrophe_data_growth.npz",
          N_fps_space=N_fps_space,
-         gammas=gammas,
+         z_mus=z_mus,
          Ms_probes=Ms_probes,
          size=size, size_gamma=size_gamma, beta=beta, 
          XIs=XIs, w_mu=w_mu)
