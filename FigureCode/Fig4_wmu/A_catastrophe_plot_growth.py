@@ -22,7 +22,8 @@ import matplotlib.colors
 
 def calculate_growth_grad(z_base, growth_point, XIs, beta, w_mu):
     N_cells = 100.0
-    gamma_base = jnp.asarray([N_cells*z_base[0], N_cells*z_base[1], N_cells])
+    gamma_base = jnp.asarray([N_cells*z_base[0], N_cells*z_base[1], N_cells]) * w_mu
+    
     tmax = 4000
     lr = 0.01
     noise_level = 5 # i.e. enough noise to break away from very weak attractors
@@ -62,38 +63,41 @@ common_norm = matplotlib.colors.Normalize(0, 4)
 
 data = np.load("data_catastrophe_2/catastrophe_data_growth.npz") #long_iso
 N_fps_space = data["N_fps_space"]
-gammas = data["gammas"]
+z_mus = data["z_mus"]
 size_gamma = data["size_gamma"]
 beta = data["beta"]
 XIs = data["XIs"]
+w_mu = data["w_mu"]
 
-w_mu = np.asarray([100.0, 1.0, 1.0])
 
 # Still debugging..
-dz = jax.vmap(calculate_growth_grad, in_axes=(0, None, None, None, None))(gammas, XIs[0],
-                                                                    XIs, beta, w_mu)
+dz = jax.vmap(calculate_growth_grad, in_axes=(0, None, None, None, None))(z_mus, XIs[0], XIs, beta, w_mu)
 
 # preprocess the FPs so that only odd numbers are kept
 N_fps_space_pp = np.ceil((N_fps_space - 1)/2.0)
 
 slinesize = 100
 
+
 fig, ax = plt.subplots(1, 1, figsize=(15, 6), dpi=400)
 
-im=ax.pcolormesh(gammas[:, 0].reshape(size_gamma, size_gamma),
-              gammas[:, 1].reshape(size_gamma, size_gamma),
+im=ax.pcolormesh(z_mus[:, 0].reshape(size_gamma, size_gamma),
+              z_mus[:, 1].reshape(size_gamma, size_gamma),
                  N_fps_space_pp, cmap=common_cmap, norm=common_norm)
 
-X = gammas[:, 0].reshape(size_gamma, size_gamma)
-Y = gammas[:, 1].reshape(size_gamma, size_gamma)
+
+
+X = z_mus[:, 0].reshape(size_gamma, size_gamma)
+Y = z_mus[:, 1].reshape(size_gamma, size_gamma)
 U = dz[:, 0].reshape(size_gamma, size_gamma)
 V = dz[:, 1].reshape(size_gamma, size_gamma)
+
 
 n_y = 16
 n_x = 20
 
 starts_x0    = np.c_[np.full(n_y, X.min()),    np.linspace(Y.min(), Y.max()*0.95, n_y)]
-starts_x2000 = np.c_[np.full(n_y, X.max()), np.linspace(150, Y.max()*0.95, n_y)]
+starts_x2000 = np.c_[np.full(n_y, X.max()), np.linspace(3, Y.max()*0.95, n_y)]
 starts_y0    = np.c_[np.linspace(X.min(), X.max(), n_x), np.full(n_x, Y.min())]
 
 start_points = np.vstack([starts_x2000, starts_y0])
@@ -144,10 +148,12 @@ cb.set_label("Number of FPs", labelpad=20, fontsize=24)
 ax.set_xlabel(r"$\tilde{z}_1$", fontsize=24)
 ax.set_ylabel(r"$\tilde{z}_2$", fontsize=24)
 
-ax.set_xlim(np.min(gammas[:, 0]), np.max(gammas[:, 0]))
-ax.set_ylim(np.min(gammas[:, 1]), np.max(gammas[:, 1]))
+ax.set_xlim(np.min(z_mus[:, 0]), np.max(z_mus[:, 0]))
+ax.set_ylim(np.min(z_mus[:, 1]), np.max(z_mus[:, 1]))
 
-ax.set_aspect(1.0)
+#ax.set_aspect(np.ptp(Y)/np.ptp(X))
+#ax.set_box_aspect(1)
+ax.set_aspect("auto")
 plt.tight_layout()
 
 import os
