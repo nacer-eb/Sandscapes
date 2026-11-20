@@ -57,8 +57,10 @@ def calculate_nullclines_overlaps(grads):
     return DT_diff
 
 @jax.jit
-def calculate_N_fps(Ms_probes, gamma, XIs, beta, w_mu):
-    grads = get_grads_field(Ms_probes, gamma, XIs, beta, w_mu)[:, 0].reshape(size, size, -1)
+def calculate_N_fps(Ms_probes, z_mu, gamma, XIs, beta, w_mu):
+    gamma_eff = gamma + z_mu*w_mu
+
+    grads = get_grads_field(Ms_probes, gamma_eff, XIs, beta, w_mu)[:, 0].reshape(size, size, -1)
     DT_diff = calculate_nullclines_overlaps(grads)
     max_fps = 50
     fps = jnp.argwhere(DT_diff, size=max_fps, fill_value=-1)
@@ -72,28 +74,21 @@ def calculate_N_fps(Ms_probes, gamma, XIs, beta, w_mu):
     return N_fps
 
 
-calculate_catastrophe = jax.vmap(calculate_N_fps, in_axes=(None, 0, None, None, None))
+calculate_catastrophe = jax.vmap(calculate_N_fps, in_axes=(None, 0, None, None, None, None))
 
-def calculate_catastrophe_shard(Ms_probes, gammas, XIs, beta, w_mu):
-    N_fps_gamma_space = jax.jit(calculate_catastrophe, in_shardings=(None, in_shard, None, None, None), out_shardings=out_shard)(Ms_probes, gammas, XIs, beta, w_mu)
+def calculate_catastrophe_shard(Ms_probes, z_mus, gamma, XIs, beta, w_mu):
+    N_fps_gamma_space = jax.jit(calculate_catastrophe, in_shardings=(None, in_shard, None, None, None, None), out_shardings=out_shard)(Ms_probes, z_mus, gamma, XIs, beta, w_mu)
     return N_fps_gamma_space
 
+def calculate_catastrophe_byblock(Ms_probes, z_mus, gamma, XIs, beta, w_mu, blocksize):
+    
+    N_fps_all = jnp.zeros((len(gammas)))
+    for i in tqdm.tqdm(range(0, len(gammas), blocksize)):
+        i_max = min(len(gammas), i+blocksize)
+        z_mus_block = z_mus[i:i_max] # we multiply by w_mu bc here we are simulating various z_mu conditions through gamma
 
-def calculate_catastrophe_byblock(Ms_probes, gammas, XIs, beta, w_mu, blocksize):
-    assert(len(gammas)%blocksize == 0) # make sure the blocksize makes sense
-
-    i=0
-    gammas_block = gammas[i*blocksize:(i+1)*blocksize]
-    N_fps_all = calculate_catastrophe_shard(Ms_probes, gammas_block, XIs, beta, w_mu)
-
-    N_blocks = len(gammas)//blocksize
-    print("N_BLOCKS", N_blocks)
-
-    for i in tqdm.tqdm(range(1, N_blocks)):
-        gammas_block = gammas[i*blocksize:(i+1)*blocksize]
-
-        N_fps_block = calculate_catastrophe_shard(Ms_probes, gammas_block, XIs, beta, w_mu)
-        N_fps_all = jnp.concatenate((N_fps_all, N_fps_block), axis=0)
+        N_fps_block = calculate_catastrophe_shard(Ms_probes, z_mus_block, gamma, XIs, beta, w_mu)
+        N_fps_all =  N_fps_all.at[i:i_max].set(N_fps_block)
 
     return N_fps_all
 
@@ -128,10 +123,11 @@ jnp.savez("data_catastrophe_2/catastrophe_data_growth.npz",
          N_fps_space=N_fps_space,
          gammas=gammas,
          Ms_probes=Ms_probes,
-         size=size, size_gamma=size_gamma, beta=beta, XIs=XIs)
+         size=size, size_gamma=size_gamma, beta=beta, 
+         XIs=XIs, w_mu=w_mu)
 
 
-####3
+####
 
 
 
