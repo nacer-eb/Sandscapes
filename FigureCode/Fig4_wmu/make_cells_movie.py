@@ -1,6 +1,6 @@
 import numpy as np, subprocess as sp, matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from multiprocessing import Pool
-X = np.load("Xs_saves.mmap", mmap_mode="r")[::10]; S = np.asarray(X[::100]); K = X.shape[1]
+X = np.load("/localhome/nacer/data_4_wmu/Xs_saves.mmap", mmap_mode="r")[::10]; S = np.asarray(X[::100]); K = X.shape[1]
 
 def init():  # runs once per worker: each worker builds its own figure
     global fig, sc

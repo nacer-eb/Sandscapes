@@ -16,7 +16,7 @@ def get_spatial_indices(data, eps):
     return np.unique(np.append(indices, len(data) - 1))
 
 
-Xs_saves_all = np.load("Xs_saves.mmap", mmap_mode="r")[:80000, :] #70000
+Xs_saves_all = np.load("/localhome/nacer/data_4_wmu/Xs_saves.mmap", mmap_mode="r")[:80000, :] #70000
 
 
 #Xs_saves_all = Xs_saves

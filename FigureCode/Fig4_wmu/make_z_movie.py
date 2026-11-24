@@ -4,9 +4,14 @@ from multiprocessing import Pool
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 sns.set_theme(palette="pastel")
 
-z = np.load("run_save_growth.npz")["Ss_saves"][::10]; z = z / z[:, -1][:, None]
+z = np.load("/localhome/nacer/data_4_wmu/run_save_growth.npz")["Ss_saves"][::10]; 
+#z = np.load("../Fig4/run_save_growth.npz")["Ss_saves"][::10]; 
+z = z / z[:, -1][:, None]
 d = np.load("data_catastrophe_2/catastrophe_data_growth.npz")
 zm, n = d["z_mus"], int(d["size_gamma"])
+w_mu = d["w_mu"]
+zm = zm*w_mu[None, :]
+
 N_pp = np.ceil((d["N_fps_space"] - 1) / 2.0)  # keep only odd FP counts
 cmap = mc.ListedColormap(["#D55E00", "#E69F00", "#56B4E9", "#009E73"])
 DPI = 150  # 400 gives 6000x2400 frames (~58 MB each); raise it if you really need it

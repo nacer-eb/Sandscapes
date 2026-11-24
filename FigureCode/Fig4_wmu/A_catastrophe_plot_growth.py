@@ -98,9 +98,7 @@ n_x = 20
 
 starts_x0    = np.c_[np.full(n_y, X.min()),    np.linspace(Y.min(), Y.max()*0.95, n_y)]
 starts_x2000 = np.c_[np.full(n_y, X.max()), np.linspace(4, Y.max()*0.95, n_y)] # 4 is roughly the flip
-starts_y0    = np.c_[np.linspace(20, 25, n_x), np.full(n_x, Y.min())]
-print(starts_y0); exit();
-start_points = np.vstack([starts_x2000, starts_y0])
+
 
 ax.streamplot(
     X, Y, U, V,
@@ -113,17 +111,20 @@ ax.streamplot(
     integration_direction="forward"
 )
 
-
-ax.streamplot(
-    X, Y, U, V,
-    color="red",
-    linewidth=3,
-    start_points=starts_y0,
-    arrowsize=0.0,
-    density=1.0,
-    maxlength=10.0,
-    integration_direction="forward"
-)
+# matplotlib is really suboptimal.. workaround below
+for i in range(10, 130, 5):
+    n_x = 1
+    starts_y0    = np.c_[np.linspace(i, i+2, n_x), np.full(n_x, Y.min())]
+    ax.streamplot(
+        X, Y, U, V,
+        color="blue",
+        linewidth=3,
+        start_points=starts_y0,
+        arrowsize=0.0,
+        density=100.0,
+        maxlength=10.0,
+        integration_direction="forward"
+    )
 
 
 ax.streamplot(

@@ -11,7 +11,7 @@ import seaborn as sns
 
 tmin = 0
 #data_h = np.load("/localhome/nacer/SignalDiff_data/SLURM/run_save_growth_h_q4.0_seed4.npz")
-data_h = np.load("run_save_growth.npz")
+data_h = np.load("/localhome/nacer/data_4_wmu/run_save_growth.npz")
 Ss_saves_h = data_h['Ss_saves']#100000
 tmax = len(Ss_saves_h)
 

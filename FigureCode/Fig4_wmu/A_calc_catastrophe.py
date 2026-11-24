@@ -117,6 +117,8 @@ z_mus = jnp.ones((size_gamma**2, 3))
 z_mus = z_mus.at[:, 0].set(z_mus_x.ravel())
 z_mus = z_mus.at[:, 1].set(z_mus_y.ravel())
 
+
+
 blocksize=len(z_mus)//500
 
 gamma = 0
