@@ -38,7 +38,7 @@ def calculate_aggregate_signals(S, mute_cells):
 def calculate_gradient(X, XI, beta, gamma, mute_cells, w_mu):
     D_2 = calculate_distances(X, XI)
     S = calculate_signals(beta, D_2)
-    S_sum = calculate_aggregate_signals(S, mute_cells)*w_mu +gamma
+    S_sum = (calculate_aggregate_signals(S, mute_cells)+gamma)*w_mu
 
     coefs = S / (S_sum)[None, :] # (N-cells, N-patterns)
     N = coefs.sum(axis=-1)  + numerical_eps # (N-cells,)
@@ -51,7 +51,7 @@ def calculate_Es(X, XI, beta, gamma, mute_cells, w_mu):
     D_2 = calculate_distances(X, XI)
 
     # more numerically stable
-    log_S_sum_raw = jax.nn.logsumexp(-beta * D_2, b=mute_cells[:, None], axis=0) + jnp.log(w_mu) # log(ab) = log(a) + log(b)
+    log_S_sum_raw = jax.nn.logsumexp(-beta * D_2, b=mute_cells[:, None], axis=0) 
     log_S_sum = (1.0/w_mu) *  jnp.logaddexp(log_S_sum_raw, jnp.log(gamma))
     Es = log_S_sum.sum(axis=0)
     
@@ -62,7 +62,7 @@ def calculate_Es(X, XI, beta, gamma, mute_cells, w_mu):
 def calculate_grads_and_Es(X, XI, beta, gamma, mute_cells, w_mu):
     D_2 = calculate_distances(X, XI)
     S = calculate_signals(beta, D_2)
-    S_sum = calculate_aggregate_signals(S, mute_cells)*w_mu +gamma
+    S_sum = (calculate_aggregate_signals(S, mute_cells)+gamma)*w_mu
     
 
     coefs = S / (S_sum)[None, :] # (N-cells, N-patterns)
@@ -71,7 +71,7 @@ def calculate_grads_and_Es(X, XI, beta, gamma, mute_cells, w_mu):
 
 
     # more numerically stable
-    log_S_sum_raw = jax.nn.logsumexp(-beta * D_2, b=mute_cells[:, None], axis=0) + jnp.log(w_mu) # log(ab) = log(a) + log(b)
+    log_S_sum_raw = jax.nn.logsumexp(-beta * D_2, b=mute_cells[:, None], axis=0) 
     log_S_sum = (1.0/w_mu) *  jnp.logaddexp(log_S_sum_raw, jnp.log(gamma))
     Es = log_S_sum.sum(axis=0)
 

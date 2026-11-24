@@ -26,7 +26,7 @@ def calculate_signals_t(X, XI, beta, gamma, mute_cells):
     S_sum = calculate_aggregate_signals(S, mute_cells) + gamma
     return S_sum
 
-calculate_signals_all_t = jax.vmap(calculate_signals_t, in_axes=(0, None, None, None, 0, None))
+calculate_signals_all_t = jax.vmap(calculate_signals_t, in_axes=(0, None, None, None, 0))
 
 xi_x = 1.0
 xi_y = 1.3
@@ -38,7 +38,7 @@ w_mu = jnp.asarray([600.0, 60.0, 1.0])
 
 gamma = jnp.asarray([800.0, 150.0, 1.0])*q + 1E-5
 
-gamma = gamma/w_mu
+gamma = gamma / w_mu
 
 beta = 1.5 
 K = 1000*10*4  # 4
@@ -85,7 +85,7 @@ for i in tqdm.tqdm(range(0, N_TIME_CHUNKS)):
     Xs_saves[i * time_chunk_size//dt: (i+1) * time_chunk_size//dt] = np.asarray(Xs_saves_[::dt], copy=True)
     Ss_saves[i * time_chunk_size//dt: (i+1) * time_chunk_size//dt] = np.asarray(calculate_signals_all_t(Xs_saves_[::dt], XIs,
                                                                                                         beta, gamma,
-                                                                                                        mute_cells_ts_chunk[::dt], w_mu),
+                                                                                                        mute_cells_ts_chunk[::dt]),
                                                                                 copy=True)
 Xs_saves.flush()
 
