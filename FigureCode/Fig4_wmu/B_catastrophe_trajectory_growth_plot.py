@@ -12,8 +12,10 @@ import seaborn as sns
 tmin = 0
 #data_h = np.load("/localhome/nacer/SignalDiff_data/SLURM/run_save_growth_h_q4.0_seed4.npz")
 data_h = np.load("run_save_growth.npz")
-Ss_saves_h = data_h['Ss_saves'][tmin:70000]#100000
+Ss_saves_h = data_h['Ss_saves']#100000
 tmax = len(Ss_saves_h)
+
+
 
 gamma_points_h = np.asarray([1500, 8200, tmax-1])
 print(gamma_points_h)
@@ -28,7 +30,7 @@ ax.plot(ts, z_h[:, 1], color="white", lw=10, zorder=9)
 ax.scatter(ts[gamma_points_h], z_h[gamma_points_h, 1], c=[(183/255.0, 183/255.0, 183/255.0)], s=400, zorder=10)
 
 #gamma_vlines = np.unique(np.r_[np.arange(0, tmax-1, 10000, dtype=int)[[0, 1, 2, 4, 6]], tmax-1])
-gamma_vlines = np.unique(np.r_[np.arange(0, tmax-1, 8000, dtype=int)[[0, 1, 2, 4, 6]], tmax-1])
+gamma_vlines = np.unique(np.r_[np.arange(0, tmax-1, 1000, dtype=int)[[0, 1, 2, 4, 6]], tmax-1])
 print(gamma_vlines)
 for vline in gamma_vlines[:-1]:
     ax.axvline(vline, color="grey", lw=1)
@@ -38,8 +40,8 @@ ax.set_ylabel(r"$\tilde{z}_2$", fontsize=34)
 y_0 = np.mean(z_h[-10000:, 1])
 
 #dy = 
-ymin = y_0 - 50
-ymax = y_0 + 60
+ymin = y_0 - 4
+ymax = y_0 + 4
 
 
 ax.locator_params(axis='x', nbins=20)

@@ -97,7 +97,7 @@ n_y = 16
 n_x = 20
 
 starts_x0    = np.c_[np.full(n_y, X.min()),    np.linspace(Y.min(), Y.max()*0.95, n_y)]
-starts_x2000 = np.c_[np.full(n_y, X.max()), np.linspace(3, Y.max()*0.95, n_y)]
+starts_x2000 = np.c_[np.full(n_y, X.max()), np.linspace(4, Y.max()*0.95, n_y)] # 4 is roughly the flip
 starts_y0    = np.c_[np.linspace(X.min(), X.max(), n_x), np.full(n_x, Y.min())]
 
 start_points = np.vstack([starts_x2000, starts_y0])

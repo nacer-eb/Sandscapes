@@ -43,8 +43,8 @@ XIs = jnp.asarray([ [-xi_x, -xi_y], [xi_x, -xi_y], [0, xi_y] ])
 beta = 1.5
 
 
-def get_grad(Ms_probe, gamma, XIs, beta):
-    grad = calculate_gradient(Ms_probe, XIs, beta, gamma, jnp.asarray([1E-5]))
+def get_grad(Ms_probe, gamma, XIs, beta, w_mu):
+    grad = calculate_gradient(Ms_probe, XIs, beta, gamma, jnp.asarray([1E-5]), w_mu)
     return grad
 
 def get_grads_field(Ms_probes, gamma, XIs, beta):

@@ -34,14 +34,17 @@ xi_y = 1.3
 XIs = jnp.asarray([ [-xi_x, -xi_y], [xi_x, -xi_y], [0, xi_y] ])
 q = args.q
 
-w_mu = jnp.asarray([600.0, 60.0, 1.0])
+#w_mu = jnp.asarray([600.0, 60.0, 1.0])
+#w_mu = jnp.asarray([200.0, 20.0, 1.0]) 
+
+w_mu = jnp.asarray([20.0, 20.0, 1.0]) # 6 seems good
+
 
 gamma = jnp.asarray([800.0, 150.0, 1.0])*q + 1E-5
-
 gamma = gamma / w_mu
 
 beta = 1.5 
-K = 1000*10*4  # 4
+K = 2000*10*4  # 4
 
 tmax= K*30  # here it's inverse rate
 a = (tmax)/K
@@ -52,7 +55,7 @@ keys = jax.random.split(key, (tmax,))
 X_STEM = jnp.asarray([ XIs[0] ])
 X_0 = X_STEM.repeat(K, axis=0)
 
-N_TIME_CHUNKS = 100
+N_TIME_CHUNKS = 400
 time_chunk_size = tmax // N_TIME_CHUNKS
 
 k = jnp.arange(K)[None, :]
