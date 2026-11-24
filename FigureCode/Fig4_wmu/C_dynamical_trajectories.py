@@ -17,9 +17,11 @@ def get_spatial_indices(data, eps):
 
 
 Xs_saves_all = np.load("Xs_saves.mmap", mmap_mode="r")[:80000, :] #70000
+
+
 #Xs_saves_all = Xs_saves
 tmax = len(Xs_saves_all)
-gamma_vlines = np.unique(np.r_[np.arange(0, tmax-1, 10000, dtype=int)[[0, 1, 2, 4, 6]], tmax-1])
+gamma_vlines = np.unique(np.r_[np.arange(0, tmax-1, 8000, dtype=int)[[0, 1, 2, 4, 6]], tmax-1])
 
 data = np.load("run_save_growth.npz")
 K = data["K"]
@@ -71,7 +73,7 @@ for w in range(len(gamma_vlines) - 1):
 
         segments.append(Xs_ss)
         
-    lw = 1
+    lw = 0.1
     
     lc = LineCollection(
         segments,
