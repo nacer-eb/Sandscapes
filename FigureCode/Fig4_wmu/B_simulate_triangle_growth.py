@@ -20,10 +20,10 @@ parser.add_argument('--seed', type=int, default=4)
 parser.add_argument('--filename', type=str, default="run_save_growth.npz")
 args = parser.parse_args()
 
-def calculate_signals_t(X, XI, beta, gamma, mute_cells):
+def calculate_signals_t(X, XI, beta, gamma, mute_cells, w_mu):
     D_2 = calculate_distances(X, XI)
     S = calculate_signals(beta, D_2)
-    S_sum = calculate_aggregate_signals(S, mute_cells) + gamma
+    S_sum = (calculate_aggregate_signals(S, mute_cells) + gamma) * w_mu
     return S_sum
 
 calculate_signals_all_t = jax.vmap(calculate_signals_t, in_axes=(0, None, None, None, 0))
@@ -40,11 +40,11 @@ q = args.q
 w_mu = jnp.asarray([20.0, 20.0, 1.0]) # 6 seems good
 
 
-gamma = jnp.asarray([800.0, 150.0, 1.0])*q + 1E-5
+gamma = jnp.asarray([800.0, 2*150.0, 1.0])*q + 1E-5
 gamma = gamma / w_mu
 
-beta = 1.5 
-K = 2000*10*4  # 4
+beta = 1.500 #1.5 
+K = 750*10*4  # 4
 
 tmax= K*30  # here it's inverse rate
 a = (tmax)/K
@@ -55,7 +55,7 @@ keys = jax.random.split(key, (tmax,))
 X_STEM = jnp.asarray([ XIs[0] ])
 X_0 = X_STEM.repeat(K, axis=0)
 
-N_TIME_CHUNKS = 400
+N_TIME_CHUNKS = 25 #400
 time_chunk_size = tmax // N_TIME_CHUNKS
 
 k = jnp.arange(K)[None, :]

@@ -31,7 +31,7 @@ def calculate_growth_grad(z_base, growth_point, XIs, beta, w_mu):
     mute_cells_ts = jnp.ones((tmax, 1))#*1E-5
 
     D_2 = calculate_distances(jnp.asarray([growth_point]), XIs)
-    S_0 = gamma_base# + calculate_signals(beta, D_2, jnp.asarray([1.0]))[0]
+    S_0 = gamma_base # + calculate_signals(beta, D_2, jnp.asarray([1.0]))[0]
     z_0 = S_0[:-1]/(S_0[-1])
     
     Xs = training_loop_nosave(jnp.asarray([growth_point]), jnp.asarray([growth_point]), XIs,
@@ -40,7 +40,7 @@ def calculate_growth_grad(z_base, growth_point, XIs, beta, w_mu):
 
 
     D_2 = calculate_distances(Xs, XIs)
-    S_f = w_mu * calculate_signals(beta, D_2)[0]+gamma_base
+    S_f = (calculate_signals(beta, D_2)[0]+gamma_base)
     z_f = S_f[:-1]/(S_f[-1])
 
     dz = z_f - z_0
@@ -98,17 +98,29 @@ n_x = 20
 
 starts_x0    = np.c_[np.full(n_y, X.min()),    np.linspace(Y.min(), Y.max()*0.95, n_y)]
 starts_x2000 = np.c_[np.full(n_y, X.max()), np.linspace(4, Y.max()*0.95, n_y)] # 4 is roughly the flip
-starts_y0    = np.c_[np.linspace(X.min(), X.max(), n_x), np.full(n_x, Y.min())]
-
+starts_y0    = np.c_[np.linspace(20, 25, n_x), np.full(n_x, Y.min())]
+print(starts_y0); exit();
 start_points = np.vstack([starts_x2000, starts_y0])
 
 ax.streamplot(
     X, Y, U, V,
     color="white",
     linewidth=3,
-    start_points=start_points,
+    start_points=starts_x2000,
     arrowsize=0.0,
     density=10.0,
+    maxlength=10.0,
+    integration_direction="forward"
+)
+
+
+ax.streamplot(
+    X, Y, U, V,
+    color="red",
+    linewidth=3,
+    start_points=starts_y0,
+    arrowsize=0.0,
+    density=1.0,
     maxlength=10.0,
     integration_direction="forward"
 )
@@ -119,7 +131,7 @@ ax.streamplot(
     color="white",
     linewidth=3,
     start_points=starts_x0,
-    arrowsize=0.0,
+    arrowsize=1.0,
     density=10.0,
     maxlength=slinesize,
     integration_direction="forward"
