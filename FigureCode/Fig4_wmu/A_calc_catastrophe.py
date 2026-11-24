@@ -58,7 +58,7 @@ def calculate_nullclines_overlaps(grads):
 
 @jax.jit
 def calculate_N_fps(Ms_probes, z_mu, gamma, XIs, beta, w_mu):
-    gamma_eff = gamma + z_mu*w_mu
+    gamma_eff = gamma + z_mu
 
     grads = get_grads_field(Ms_probes, gamma_eff, XIs, beta, w_mu)[:, 0].reshape(size, size, -1)
     DT_diff = calculate_nullclines_overlaps(grads)
@@ -75,7 +75,6 @@ def calculate_N_fps(Ms_probes, z_mu, gamma, XIs, beta, w_mu):
 
 
 calculate_catastrophe = jax.vmap(calculate_N_fps, in_axes=(None, 0, None, None, None, None))
-
 def calculate_catastrophe_shard(Ms_probes, z_mus, gamma, XIs, beta, w_mu):
     N_fps_gamma_space = jax.jit(calculate_catastrophe, in_shardings=(None, in_shard, None, None, None, None), out_shardings=out_shard)(Ms_probes, z_mus, gamma, XIs, beta, w_mu)
     return N_fps_gamma_space

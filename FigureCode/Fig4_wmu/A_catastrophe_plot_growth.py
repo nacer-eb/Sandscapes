@@ -22,7 +22,7 @@ import matplotlib.colors
 
 def calculate_growth_grad(z_base, growth_point, XIs, beta, w_mu):
     N_cells = 100.0
-    gamma_base = jnp.asarray([N_cells*z_base[0], N_cells*z_base[1], N_cells]) * w_mu
+    gamma_base = jnp.asarray([N_cells*z_base[0], N_cells*z_base[1], N_cells])
     
     tmax = 4000
     lr = 0.01
