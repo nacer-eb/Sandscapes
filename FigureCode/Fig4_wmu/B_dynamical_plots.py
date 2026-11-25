@@ -35,22 +35,12 @@ in_shard = NamedSharding(mesh, P('data'))
 out_shard = NamedSharding(mesh, P('data'))
 
 
-
-
-xi_x = 1.0
-xi_y = 1.3 #np.sqrt(3)/2.0 #1.0
-XIs = jnp.asarray([ [-xi_x, -xi_y], [xi_x, -xi_y], [0, xi_y] ])
-beta = 1.5
-
-
 def get_grad(Ms_probe, gamma, XIs, beta, w_mu):
     grad = calculate_gradient(Ms_probe, XIs, beta, gamma, jnp.asarray([1E-5]), w_mu)
     return grad
 
-def get_grads_field(Ms_probes, gamma, XIs, beta):
-    return jax.vmap(get_grad, in_axes=(0, None, None, None))(Ms_probes, gamma, XIs, beta)
-
-
+def get_grads_field(Ms_probes, gamma, XIs, beta, w_mu):
+    return jax.vmap(get_grad, in_axes=(0, None, None, None, None))(Ms_probes, gamma, XIs, beta, w_mu)
 
 
 @jax.jit
@@ -73,8 +63,8 @@ def calculate_nullclines_overlaps(grads):
     return DT_diff
 
 @jax.jit
-def calculate_N_fps(Ms_probes, gamma, XIs, beta):
-    grads = get_grads_field(Ms_probes, gamma, XIs, beta)[:, 0].reshape(size, size, -1)
+def calculate_N_fps(Ms_probes, gamma, XIs, beta, w_mu):
+    grads = get_grads_field(Ms_probes, gamma, XIs, beta, w_mu)[:, 0].reshape(size, size, -1)
     DT_diff = calculate_nullclines_overlaps(grads)
     max_fps = 50
     fps = jnp.argwhere(DT_diff, size=max_fps, fill_value=-1)
@@ -89,9 +79,9 @@ def calculate_N_fps(Ms_probes, gamma, XIs, beta):
 
 
 
-def get_fps_clustered(gamma_point_2d, Ms_probes):
+def get_fps_clustered(gamma_point_2d, Ms_probes, XIs, beta, w_mu):
     gamma = jnp.asarray([*gamma_point_2d, 1.0])
-    grads, fps, N_fps = calculate_N_fps(Ms_probes, gamma, XIs, beta)
+    grads, fps, N_fps = calculate_N_fps(Ms_probes, gamma, XIs, beta, w_mu)
     fps = fps[fps[:, 0]!=-1]
 
 
@@ -112,16 +102,33 @@ def get_fps_clustered(gamma_point_2d, Ms_probes):
     return fps_clustered, grads_cpu, Ms_probes_cpu
 
 
-def sim_sys(Ms_init, gamma_point_2d, tmax, lr):
+def sim_sys(Ms_init, gamma_point_2d, tmax, lr, w_mu):
     gamma = jnp.asarray([*gamma_point_2d, 1.0])
     
     mute_cells_ts = jnp.ones((tmax, 1))*1E-5 # Probe weak compared to env.
     keys = jax.random.split(jax.random.key(42), (tmax,))
     print(Ms_init, "DEBUG")
-    Ms_saves = training_loop(jnp.asarray([Ms_init]), jnp.asarray([XIs[0]]), XIs, jnp.asarray([beta]), gamma, tmax, lr, noise_level=20, keys=keys, mute_cells_ts=None)
+    Ms_saves = training_loop(jnp.asarray([Ms_init]), jnp.asarray([XIs[0]]), XIs, jnp.asarray([beta]), gamma, tmax, lr, noise_level=20, keys=keys, mute_cells_ts=mute_cells_ts, w_mu=w_mu)
 
     return Ms_saves
 
+
+
+
+
+data_h = np.load("/localhome/nacer/data_4_wmu/run_save_growth.npz")
+Ss_saves_h = data_h['Ss_saves']#100000
+tmax = len(Ss_saves_h)
+
+XIs   = data_h["XIs"]
+beta  = data_h["beta"]
+gamma = data_h["gamma"]
+w_mu  = data_h["w_mu"]
+
+
+gammas_h = Ss_saves_h/w_mu[None, :]
+gammas_h = gammas_h[:, :-1]/gammas_h[:, -1:]
+gamma_points_h = np.asarray([300, 1530, tmax-300])
 
 
 size = 1000
@@ -129,18 +136,13 @@ xs = jnp.linspace(-1.5, 1.5, size)
 ys = jnp.linspace(-1.5, 1.5, size)
 Ms_probes_x, Ms_probes_y = jnp.meshgrid(xs, ys)
 Ms_probes = jnp.asarray([Ms_probes_x.ravel(), Ms_probes_y.ravel()]).T
-print(Ms_probes.nbytes)
 
 
-
-
-gamma_points = jnp.asarray([[1.04453841e+03, 1.50364109e+02],
-                            [8.33382224e+02, 6.98842510e+01 ],
-                            [1.04866056e+03, 9.25558761e+01 ]])
-
+gamma_points = gammas_h[gamma_points_h]
+print(gamma_points)
 
 for gamma_point_i in tqdm.tqdm([0, 1, 2]):
-    fps_clustered, grads_cpu, Ms_probes_cpu = get_fps_clustered(gamma_points[gamma_point_i], Ms_probes[:, None, :])
+    fps_clustered, grads_cpu, Ms_probes_cpu = get_fps_clustered(gamma_points[gamma_point_i], Ms_probes[:, None, :], XIs, beta, w_mu)
     Ms_probes_cpu = Ms_probes_cpu[:, 0]
 
 
@@ -155,9 +157,14 @@ for gamma_point_i in tqdm.tqdm([0, 1, 2]):
     for spine in ax.spines.values():
         spine.set_visible(False)
 
+    # debug  
     #ax.streamplot(Ms_probes_cpu[:, 0].reshape(size, size),
     #              Ms_probes_cpu[:, 1].reshape(size, size),
     #              grads_cpu[:, :, 0], grads_cpu[:, :, 1], density=2.0)
+    
+    ax.streamplot(Ms_probes_cpu[:, 0].reshape(size, size),
+                  Ms_probes_cpu[:, 1].reshape(size, size),
+                  grads_cpu[:, :, 0], grads_cpu[:, :, 1], density=1.7, color=(0,0,0,0.3), arrowsize=1.3)
 
     ax.scatter(*fps_clustered.T, color="k", s=10, zorder=10)
     #for i in range(len(fps_clustered)):
@@ -168,69 +175,71 @@ for gamma_point_i in tqdm.tqdm([0, 1, 2]):
     blue = np.asarray([163, 163, 245, 255])/255.0
     lw = 15*2
 
+    #"""
     if gamma_point_i == 0:
-        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0, 0.01]), gamma_points[gamma_point_i], 5000, 0.003)
+        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0, 0.01]), gamma_points[gamma_point_i], 5000, 0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=blue, lw=lw)
-        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0, -0.01]), gamma_points[gamma_point_i], 5000, 0.003)
+        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([-0.01, -0.01]), gamma_points[gamma_point_i], 5000, 0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=blue, lw=lw)
 
-        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0.01, 0.0]), gamma_points[gamma_point_i], 5000, -0.003)
-        ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=red, lw=lw)
-        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([-0.01, 0.0]), gamma_points[gamma_point_i], 5000, -0.003)
-        ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=red, lw=lw)
 
-        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([0.01, 0.0]), gamma_points[gamma_point_i], 5000, 0.003)
-        ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=blue, lw=lw)
-        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([-0.01, 0.0]), gamma_points[gamma_point_i], 1500, 0.003)
-        ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=blue, lw=lw)
+        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0.0, 0.01]), gamma_points[gamma_point_i], 5000, -0.003, w_mu)
+        ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=red, lw=lw)
+        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0.01, -0.01]), gamma_points[gamma_point_i], 5000, -0.003, w_mu)
+        ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=red, lw=lw)
         
-        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([0.01, 0.0]), gamma_points[gamma_point_i], 5000, -0.003)
+        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([0.01, -0.01]), gamma_points[gamma_point_i], 5000, 0.003, w_mu)
+        ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=blue, lw=lw)
+        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([-0.01, 0.01]), gamma_points[gamma_point_i], 5000, 0.003, w_mu)
+        ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=blue, lw=lw)
+
+        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([0.01, 0.0]), gamma_points[gamma_point_i], 5000, -0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=red, lw=lw)
-        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([-0.01, 0.0]), gamma_points[gamma_point_i], 5000, -0.003)
+        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([-0.01, 0.0]), gamma_points[gamma_point_i], 5000, -0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=red, lw=lw)
+
 
     if gamma_point_i == 1:
-        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0.01, 0.0]), gamma_points[gamma_point_i], 5000, 0.003)
+        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0.01, 0.0]), gamma_points[gamma_point_i], 5000, 0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=blue, lw=lw)
-        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([-0.01, -0.0]), gamma_points[gamma_point_i], 5000, 0.003)
+        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([-0.01, -0.0]), gamma_points[gamma_point_i], 5000, 0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=blue, lw=lw)
 
-        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0.0, 0.01]), gamma_points[gamma_point_i], 5000, -0.003)
+        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0.0, 0.01]), gamma_points[gamma_point_i], 5000, -0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=red, lw=lw)
-        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0.01, -0.01]), gamma_points[gamma_point_i], 5000, -0.003)
+        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0.01, -0.01]), gamma_points[gamma_point_i], 5000, -0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=red, lw=lw)
 
-        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([0.01, 0.0]), gamma_points[gamma_point_i], 5000, 0.003)
+        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([0.01, 0.0]), gamma_points[gamma_point_i], 5000, 0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=blue, lw=lw)
-        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([-0.01, 0.0]), gamma_points[gamma_point_i], 1500, 0.003)
+        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([-0.01, 0.0]), gamma_points[gamma_point_i], 1500, 0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=blue, lw=lw)
         
-        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([0.01, 0.0]), gamma_points[gamma_point_i], 5000, -0.003)
+        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([0.01, 0.0]), gamma_points[gamma_point_i], 5000, -0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=red, lw=lw)
-        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([-0.01, 0.0]), gamma_points[gamma_point_i], 5000, -0.003)
+        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([-0.01, 0.0]), gamma_points[gamma_point_i], 5000, -0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=red, lw=lw)
 
     if gamma_point_i == 2:
 
         manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([-0.001, -0.001]), gamma_points[gamma_point_i], 2500,
-                                -0.003)
+                                -0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=blue, lw=lw)
 
-        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([-0.01, 0.0]), gamma_points[gamma_point_i], 5000, 0.003)
+        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([-0.01, 0.0]), gamma_points[gamma_point_i], 5000, 0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=blue, lw=lw)
         
-        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0.0, 0.01]), gamma_points[gamma_point_i], 5000, -0.003)
+        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0.0, 0.01]), gamma_points[gamma_point_i], 5000, -0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=red, lw=lw)
-        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0.0, -0.01]), gamma_points[gamma_point_i], 5000, -0.003)
+        manifold_line = sim_sys(fps_clustered[2]+jnp.asarray([0.0, -0.01]), gamma_points[gamma_point_i], 5000, -0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=red, lw=lw)
 
         
-        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([0.00, 0.001]), gamma_points[gamma_point_i], 5000, 0.003)
+        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([0.00, 0.01]), gamma_points[gamma_point_i], 5000, 0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=blue, lw=lw)
-        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([-0.001, -0.00]), gamma_points[gamma_point_i], 5000, 0.003)
+        manifold_line = sim_sys(fps_clustered[3]+jnp.asarray([-0.001, -0.00]), gamma_points[gamma_point_i], 5000, 0.003, w_mu)
         ax.plot(manifold_line[:, 0, 0], manifold_line[:, 0, 1], color=blue, lw=lw)
-        
-
+    #"""
 
     ax.set_xlim(-1.5, 1.5)
     ax.set_ylim(-1.5, 1.5)

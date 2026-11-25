@@ -1,5 +1,6 @@
-import jax
-jax.config.update("jax_enable_x64", True)
+# the next two lines typically needed for high beta or when somthing crazy happens
+#import jax
+#jax.config.update("jax_enable_x64", True)
 
 import sys
 sys.path.append('../../common')
@@ -48,7 +49,7 @@ gamma = jnp.asarray([800.0, 150.0, 1.0])*q + 1E-5
 gamma = gamma / w_mu
 
 beta = 1.500 #1.5 
-K = 1*750*10*4  # 4
+K = 1*750*10  # 4
 
 tmax= K*30  # here it's inverse rate
 a = (tmax)/K
@@ -59,7 +60,7 @@ keys = jax.random.split(key, (tmax,))
 X_STEM = jnp.asarray([ XIs[0] ])
 X_0 = X_STEM.repeat(K, axis=0)
 
-N_TIME_CHUNKS = 2*25 #400
+N_TIME_CHUNKS = 5 #400
 time_chunk_size = tmax // N_TIME_CHUNKS
 
 k = jnp.arange(K)[None, :]
