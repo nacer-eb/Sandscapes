@@ -162,9 +162,9 @@ for gamma_point_i in tqdm.tqdm([0, 1, 2]):
     #              Ms_probes_cpu[:, 1].reshape(size, size),
     #              grads_cpu[:, :, 0], grads_cpu[:, :, 1], density=2.0)
     
-    ax.streamplot(Ms_probes_cpu[:, 0].reshape(size, size),
-                  Ms_probes_cpu[:, 1].reshape(size, size),
-                  grads_cpu[:, :, 0], grads_cpu[:, :, 1], density=1.7, color=(0,0,0,0.3), arrowsize=1.3)
+    #ax.streamplot(Ms_probes_cpu[:, 0].reshape(size, size),
+    #              Ms_probes_cpu[:, 1].reshape(size, size),
+    #              grads_cpu[:, :, 0], grads_cpu[:, :, 1], density=1.7, color=(0,0,0,0.3), arrowsize=1.3)
 
     ax.scatter(*fps_clustered.T, color="k", s=10, zorder=10)
     #for i in range(len(fps_clustered)):
