@@ -117,7 +117,7 @@ def sim_sys(Ms_init, gamma_point_2d, tmax, lr, w_mu):
 
 
 data_h = np.load("/localhome/nacer/data_4_wmu/run_save_growth.npz")
-Ss_saves_h = data_h['Ss_saves']#100000
+Ss_saves_h = data_h['Ss_saves'][:8000]#100000
 tmax = len(Ss_saves_h)
 
 XIs   = data_h["XIs"]
@@ -128,7 +128,7 @@ w_mu  = data_h["w_mu"]
 
 gammas_h = Ss_saves_h/w_mu[None, :]
 gammas_h = gammas_h[:, :-1]/gammas_h[:, -1:]
-gamma_points_h = np.asarray([300, 1530, tmax-300])
+gamma_points_h = np.asarray([300, 1530, tmax-200])
 
 
 size = 1000

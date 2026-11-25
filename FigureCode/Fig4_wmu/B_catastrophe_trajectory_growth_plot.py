@@ -12,14 +12,14 @@ import seaborn as sns
 tmin = 0
 #data_h = np.load("/localhome/nacer/SignalDiff_data/SLURM/run_save_growth_h_q4.0_seed4.npz")
 data_h = np.load("/localhome/nacer/data_4_wmu/run_save_growth.npz")
-Ss_saves_h = data_h['Ss_saves']#100000
+Ss_saves_h = data_h['Ss_saves'][:8000]#100000
 tmax = len(Ss_saves_h)
 w_mu = data_h["w_mu"]
 
 Ss_saves_h = Ss_saves_h/w_mu[None, :]
 
 
-gamma_points_h = np.asarray([300, 1530, tmax-300])
+gamma_points_h = np.asarray([300, 1530, tmax-200])
 print(gamma_points_h)
 
 z_h = Ss_saves_h/Ss_saves_h[:, -1][:, None]
@@ -31,6 +31,7 @@ ts = np.arange(tmax)
 ax.plot(ts, z_h[:, 1], color="white", lw=10, zorder=9)
 ax.scatter(ts[gamma_points_h], z_h[gamma_points_h, 1], c=[(183/255.0, 183/255.0, 183/255.0)], s=400, zorder=10)
 
+# debug only for the annihilation
 #ax.plot(ts, z_h[:, 0], color="grey", lw=10, zorder=9)
 #ax.scatter(ts[gamma_points_h], z_h[gamma_points_h, 0], c="red", s=400, zorder=10)
 
