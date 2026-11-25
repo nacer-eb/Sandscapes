@@ -73,7 +73,7 @@ for w in range(len(gamma_vlines) - 1):
 
         segments.append(Xs_ss)
         
-    lw = 0.1
+    lw = 0.3 # 0.1
     
     lc = LineCollection(
         segments,
