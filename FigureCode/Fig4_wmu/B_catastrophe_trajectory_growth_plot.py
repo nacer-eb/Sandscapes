@@ -31,8 +31,8 @@ ts = np.arange(tmax)
 ax.plot(ts, z_h[:, 1], color="white", lw=10, zorder=9)
 ax.scatter(ts[gamma_points_h], z_h[gamma_points_h, 1], c=[(183/255.0, 183/255.0, 183/255.0)], s=400, zorder=10)
 
-ax.plot(ts, z_h[:, 0], color="grey", lw=10, zorder=9)
-ax.scatter(ts[gamma_points_h], z_h[gamma_points_h, 0], c="red", s=400, zorder=10)
+#ax.plot(ts, z_h[:, 0], color="grey", lw=10, zorder=9)
+#ax.scatter(ts[gamma_points_h], z_h[gamma_points_h, 0], c="red", s=400, zorder=10)
 
 gamma_vlines = np.unique(np.r_[np.arange(0, tmax-1, 1000, dtype=int)[[0, 1, 2, 4, 6]], tmax-1])
 print(gamma_vlines)
