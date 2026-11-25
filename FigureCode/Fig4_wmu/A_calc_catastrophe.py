@@ -92,7 +92,7 @@ def calculate_catastrophe_byblock(Ms_probes, z_mus, gamma, XIs, beta, w_mu, bloc
     return N_fps_all
 
 
-w_mu = jnp.asarray([20.0, 20.0, 1.0]) # 6 seems good
+w_mu = jnp.asarray([60.0*20.0, 20.0*5, 1.0]) # 6 seems good
 
 size = 1000#//2
 xs = jnp.linspace(-1.5, 1.5, size)
@@ -108,8 +108,8 @@ size_gamma = 200 #500
 #z_mus_lin_x = jnp.linspace(0.001, 4.0, size_gamma)
 #z_mus_lin_y = jnp.linspace(0.001, 15.0, size_gamma)
 
-z_mus_lin_x = jnp.linspace(0.001, 120.0, size_gamma)
-z_mus_lin_y = jnp.linspace(0.001, 45.0, size_gamma)
+z_mus_lin_x = jnp.linspace(0.001, 2.0, size_gamma)
+z_mus_lin_y = jnp.linspace(0.001, 9.0, size_gamma)
 
 z_mus_x, z_mus_y = jnp.meshgrid(z_mus_lin_x, z_mus_lin_y)
 

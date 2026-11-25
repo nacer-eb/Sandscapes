@@ -6,8 +6,7 @@ import jax.numpy as jnp
 
 # Checks if #jax.config.update("jax_enable_x64", True)  was called and adapts to the precision
 is_x64 = jax.config.jax_enable_x64
-numerical_eps = 1e-14 if is_x64 else 1e-7
-print("USING 64 PRECISION", is_x64, numerical_eps)
+print("USING 64 PRECISION", is_x64)
 
 @jax.jit
 def calculate_distances(X, XI):
@@ -41,8 +40,9 @@ def calculate_gradient(X, XI, beta, gamma, mute_cells, w_mu):
     S_sum = (calculate_aggregate_signals(S, mute_cells)+gamma)*w_mu
 
     coefs = S / (S_sum)[None, :] # (N-cells, N-patterns)
-    N = coefs.sum(axis=-1)  + numerical_eps # (N-cells,)
-    grad = (coefs/N[:, None])  @ XI - X # (N-cells, N-dim)
+    N = coefs.sum(axis=-1) # (N-cells,)
+    N_inv = jnp.where(N>0, 1/N, 0)
+    grad = (coefs*N_inv[:, None])  @ XI - X # (N-cells, N-dim)
     return grad
 
 
@@ -66,8 +66,9 @@ def calculate_grads_and_Es(X, XI, beta, gamma, mute_cells, w_mu):
     
 
     coefs = S / (S_sum)[None, :] # (N-cells, N-patterns)
-    N = coefs.sum(axis=-1)  + numerical_eps # (N-cells,)
-    grad = (coefs/N[:, None])  @ XI - X # (N-cells, N-dim)
+    N = coefs.sum(axis=-1) # (N-cells,)
+    N_inv = jnp.where(N>0, 1/N, 0)
+    grad = (coefs*N_inv[:, None])  @ XI - X # (N-cells, N-dim)
 
 
     # more numerically stable

@@ -1,3 +1,6 @@
+import jax
+jax.config.update("jax_enable_x64", True)
+
 import sys
 sys.path.append('../../common')
 
@@ -37,14 +40,15 @@ q = args.q
 #w_mu = jnp.asarray([600.0, 60.0, 1.0])
 #w_mu = jnp.asarray([200.0, 20.0, 1.0]) 
 
-w_mu = jnp.asarray([10.0, 10.0, 1.0]) # 6 seems good
+#w_mu = jnp.asarray([60.0, 20.0, 1.0]) # 6 seems good
+w_mu = jnp.asarray([60.0*20.0, 20.0*5, 1.0]) # 6 seems good
 
 
 gamma = jnp.asarray([800.0, 150.0, 1.0])*q + 1E-5
 gamma = gamma / w_mu
 
 beta = 1.500 #1.5 
-K = 750*10*4  # 4
+K = 1*750*10*4  # 4
 
 tmax= K*30  # here it's inverse rate
 a = (tmax)/K
@@ -55,7 +59,7 @@ keys = jax.random.split(key, (tmax,))
 X_STEM = jnp.asarray([ XIs[0] ])
 X_0 = X_STEM.repeat(K, axis=0)
 
-N_TIME_CHUNKS = 25 #400
+N_TIME_CHUNKS = 2*25 #400
 time_chunk_size = tmax // N_TIME_CHUNKS
 
 k = jnp.arange(K)[None, :]
@@ -93,4 +97,4 @@ for i in tqdm.tqdm(range(0, N_TIME_CHUNKS)):
 Xs_saves.flush()
 
 # Let's not save Xs_saves...
-jnp.savez(args.filename, Ss_saves=Ss_saves, K=K, XIs=XIs, beta=beta, gamma=gamma)
+jnp.savez(args.filename, Ss_saves=Ss_saves, K=K, XIs=XIs, beta=beta, gamma=gamma, w_mu=w_mu)

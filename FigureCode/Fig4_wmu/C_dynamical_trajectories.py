@@ -16,14 +16,14 @@ def get_spatial_indices(data, eps):
     return np.unique(np.append(indices, len(data) - 1))
 
 
-Xs_saves_all = np.load("/localhome/nacer/data_4_wmu/Xs_saves.mmap", mmap_mode="r")[:80000, :] #70000
+Xs_saves_all = np.load("/localhome/nacer/data_4_wmu/Xs_saves.mmap", mmap_mode="r")[:, :] #70000
 
 
 #Xs_saves_all = Xs_saves
 tmax = len(Xs_saves_all)
-gamma_vlines = np.unique(np.r_[np.arange(0, tmax-1, 10000, dtype=int)[[0, 1, 2, 4, 6]], tmax-1])
+gamma_vlines = np.unique(np.r_[np.arange(0, tmax-1, len(Xs_saves_all)//7, dtype=int)[[0, 1, 2, 4, 6]], tmax-1])
 
-data = np.load("run_save_growth.npz")
+data = np.load("/localhome/nacer/data_4_wmu/run_save_growth.npz")
 K = data["K"]
 XIs = data["XIs"]
 beta = data["beta"]

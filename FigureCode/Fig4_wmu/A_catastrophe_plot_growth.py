@@ -97,7 +97,7 @@ n_y = 16
 n_x = 20
 
 starts_x0    = np.c_[np.full(n_y, X.min()),    np.linspace(Y.min(), Y.max()*0.95, n_y)]
-starts_x2000 = np.c_[np.full(n_y, X.max()), np.linspace(4, Y.max()*0.95, n_y)] # 4 is roughly the flip
+starts_x2000 = np.c_[np.full(n_y, X.max()), np.linspace(1.0, Y.max()*0.95, n_y)] # 4 is roughly the flip
 
 
 ax.streamplot(
@@ -112,12 +112,12 @@ ax.streamplot(
 )
 
 # matplotlib is really suboptimal.. workaround below
-for i in range(10, 130, 5):
+for i in np.linspace(X.min(), X.max(), 20):
     n_x = 1
     starts_y0    = np.c_[np.linspace(i, i+2, n_x), np.full(n_x, Y.min())]
     ax.streamplot(
         X, Y, U, V,
-        color="blue",
+        color="white",
         linewidth=3,
         start_points=starts_y0,
         arrowsize=0.0,

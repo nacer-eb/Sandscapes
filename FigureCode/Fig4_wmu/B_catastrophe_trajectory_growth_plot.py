@@ -14,7 +14,9 @@ tmin = 0
 data_h = np.load("/localhome/nacer/data_4_wmu/run_save_growth.npz")
 Ss_saves_h = data_h['Ss_saves']#100000
 tmax = len(Ss_saves_h)
+w_mu = data_h["w_mu"]
 
+Ss_saves_h = Ss_saves_h/w_mu[None, :]
 
 
 gamma_points_h = np.asarray([1500, 8200, tmax-1])
@@ -40,8 +42,8 @@ ax.set_ylabel(r"$\tilde{z}_2$", fontsize=34)
 y_0 = np.mean(z_h[-10000:, 1])
 
 #dy = 
-ymin = y_0 - 4
-ymax = y_0 + 4
+ymin = y_0 - 1
+ymax = y_0 + 1
 
 
 ax.locator_params(axis='x', nbins=20)
