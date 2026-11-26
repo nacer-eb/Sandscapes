@@ -36,50 +36,53 @@ pastel_colors = np.array([
 ])
 
 
-label_to_track = 5
-cells_to_highlight = np.argwhere(Ls_end==label_to_track).ravel()[::50]
-cell_ids = np.arange(0, Ms_saves_cpu_nca.shape[1])
-highlight_color = pastel_colors[label_to_track]
+for label_to_track in np.unique(Ls_end):
+    print(f"Running the tracking for {ct_names[label_to_track]}")
+    cells_to_highlight = np.argwhere(Ls_end==label_to_track).ravel()[::600]
+    cell_ids = np.arange(0, Ms_saves_cpu_nca.shape[1])
+    highlight_color = pastel_colors[label_to_track]
 
+    isCellTracked = np.isin(cell_ids, cells_to_highlight)
 
+    vid = vedo.Video(f"A_full_tree_movie_celltrack_{ct_names[label_to_track]}.mp4", fps=30)
+    fig = vedo.Plotter(axes=0,  size=(1920, 1080), interactive=False, offscreen=True)
 
-vid = vedo.Video("A_full_tree_movie_celltrack.mp4", fps=30)
-fig = vedo.Plotter(axes=0,  size=(1920, 1080), interactive=False, offscreen=True)
+    t = 0
 
-t = 0
-
-selected_ct = np.arange(len(ct_names))
-cells_ct = [0 for i in selected_ct]
-for i, j in enumerate(selected_ct):
-    cells_ct[i] = vedo.Points(Ms_saves_cpu_nca[t, (Ls_end==j)&(~np.isin(cell_ids, cells_to_highlight)), :3], r=7, alpha=0.01, c=list((0.1, 0.1, 0.1)))
-    cells_ct[i].name = ct_names[j]
-cells_tracked = vedo.Points(Ms_saves_cpu_nca[t, np.isin(cell_ids, cells_to_highlight), :3], r=7, alpha=1.0, c=list(highlight_color))
-
-
-
-legend = vedo.LegendBox(cells_ct, pos='bottom-left', width=0.15, height=0.4)
-txt = vedo.Text2D("t="+str(t))
-
-cam = dict(
-    pos=(89.9062, 21.2696, -50.2680),
-    focal_point=(8.34769, -3.25451, -16.7184),
-    viewup=(-0.367635, -0.0479114, -0.928735),
-    roll=92.8505,
-    distance=91.5358,
-    clipping_range=(0.304213, 304.213),
-)
-
-fig.show(*cells_ct, legend, txt, axes=0, camera=cam) # cam ?
-
-for t in tqdm.tqdm(range(0, len(Ms_saves_cpu_nca), 10)):
+    selected_ct = np.arange(len(ct_names))
+    cells_ct = [0 for i in selected_ct]
     for i, j in enumerate(selected_ct):
-        cells_ct[i].points = Ms_saves_cpu_nca[t, (Ls_end==j)&(~np.isin(cell_ids, cells_to_highlight)), :3]
-    cells_tracked.points = Ms_saves_cpu_nca[t, np.isin(cell_ids, cells_to_highlight), :3]
-    txt.text("t=" + str(t))
-    fig.render()
-    vid.add_frame()
+        cells_ct[i] = vedo.Points(Ms_saves_cpu_nca[t, (Ls_end==j)&(~isCellTracked), :3], r=7, alpha=0.0031, c=list((0.1, 0.1, 0.1)))
+        cells_ct[i].name = ct_names[j]
+    cells_tracked = vedo.Points(Ms_saves_cpu_nca[t, isCellTracked, :3], r=7, alpha=1.0, c=list(highlight_color))
 
-vid.close()
-fig.close()
+
+
+
+
+    legend = vedo.LegendBox(cells_ct, pos='bottom-left', width=0.15, height=0.4)
+    txt = vedo.Text2D("t="+str(t))
+
+    cam = dict(
+        pos=(89.9062, 21.2696, -50.2680),
+        focal_point=(8.34769, -3.25451, -16.7184),
+        viewup=(-0.367635, -0.0479114, -0.928735),
+        roll=92.8505,
+        distance=91.5358,
+        clipping_range=(0.304213, 304.213),
+    )
+
+    fig.show(*cells_ct, legend, cells_tracked, txt, axes=0, camera=cam) # cam ?
+
+    for t in tqdm.tqdm(range(0, len(Ms_saves_cpu_nca), 1)):
+        for i, j in enumerate(selected_ct):
+            cells_ct[i].points = Ms_saves_cpu_nca[t, (Ls_end==j)&(~isCellTracked), :3]
+        cells_tracked.points = Ms_saves_cpu_nca[t, isCellTracked, :3]
+        txt.text("t=" + str(t))
+        fig.render()
+        vid.add_frame()
+
+    vid.close()
+    fig.close()
 #
 
