@@ -46,11 +46,13 @@ xs = np.linspace(-1.5, 1.5, size)
 ys = np.linspace(-1.5, 1.5, size)
 Ms_probes_x, Ms_probes_y = np.meshgrid(xs, ys)
 Ms_probes = np.asarray([Ms_probes_x.ravel(), Ms_probes_y.ravel()]).T
+
 XIs_colors = np.asarray([[176.0, 213.0, 173.0, 255.0], [141, 211.0, 242.0, 255.0], [250.0, 205.0, 211.0, 255.0]])/255.0
 space_colors = np.exp(-beta*distance.cdist(Ms_probes, XIs)**2)@XIs_colors
 space_colors /= space_colors[:, -1][:, None]
 space_colors[:, -1] *= 0.9
 ax.pcolormesh(Ms_probes[:, 0].reshape(size, size), Ms_probes[:, 1].reshape(size, size), space_colors.reshape(size, size, -1), zorder=-2)
+
 ax.scatter(*XIs.T, marker="*", color=XIs_colors, s=600, edgecolor="k", lw=1.5, zorder=20)
 
 from matplotlib.collections import LineCollection
