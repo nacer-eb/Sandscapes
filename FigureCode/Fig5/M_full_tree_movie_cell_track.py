@@ -38,12 +38,12 @@ pastel_colors = np.array([
 
 label_to_track = 5
 cells_to_highlight = np.argwhere(Ls_end==label_to_track).ravel()[::50]
-cell_ids = np.arange(0, len(Ms_saves_cpu_nca.shape[1]))
+cell_ids = np.arange(0, Ms_saves_cpu_nca.shape[1])
 highlight_color = pastel_colors[label_to_track]
 
 
-import vedo
-vid = vedo.Video("A_full_tree_movie.mp4", fps=30)
+
+vid = vedo.Video("A_full_tree_movie_celltrack.mp4", fps=30)
 fig = vedo.Plotter(axes=0,  size=(1920, 1080), interactive=False, offscreen=True)
 
 t = 0
@@ -51,7 +51,7 @@ t = 0
 selected_ct = np.arange(len(ct_names))
 cells_ct = [0 for i in selected_ct]
 for i, j in enumerate(selected_ct):
-    cells_ct[i] = vedo.Points(Ms_saves_cpu_nca[t, (Ls_end==j)&(~np.isin(cell_ids, cells_to_highlight)), :3], r=7, alpha=1.0, c=list((0.1, 0.1, 0.1, 0.1)))
+    cells_ct[i] = vedo.Points(Ms_saves_cpu_nca[t, (Ls_end==j)&(~np.isin(cell_ids, cells_to_highlight)), :3], r=7, alpha=0.01, c=list((0.1, 0.1, 0.1)))
     cells_ct[i].name = ct_names[j]
 cells_tracked = vedo.Points(Ms_saves_cpu_nca[t, np.isin(cell_ids, cells_to_highlight), :3], r=7, alpha=1.0, c=list(highlight_color))
 
@@ -71,10 +71,10 @@ cam = dict(
 
 fig.show(*cells_ct, legend, txt, axes=0, camera=cam) # cam ?
 
-for t in tqdm.tqdm(range(0, len(Ms_saves_cpu_nca), 100)):
+for t in tqdm.tqdm(range(0, len(Ms_saves_cpu_nca), 10)):
     for i, j in enumerate(selected_ct):
-        cells_ct[i].points = Ms_saves_cpu_nca[t, Ls_end==j, :3]
-    cells_tracked[Ms_saves_cpu_nca[t, np.isin(cell_ids, cells_to_highlight), :3]]
+        cells_ct[i].points = Ms_saves_cpu_nca[t, (Ls_end==j)&(~np.isin(cell_ids, cells_to_highlight)), :3]
+    cells_tracked.points = Ms_saves_cpu_nca[t, np.isin(cell_ids, cells_to_highlight), :3]
     txt.text("t=" + str(t))
     fig.render()
     vid.add_frame()
